@@ -1,0 +1,4115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="PhysioTrainer â€” Your physiotherapy exercise app. Create exercises, compose workouts, and track sessions with timer and reps counter.">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>PhysioTrainer | Minimal Workout Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <style>
+/* ============================================
+   PhysioTrainer â€” Design System & Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+
+/* ---------- CSS Variables ---------- */
+:root {
+  /* Background */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-card: #111111;
+  --bg-card-hover: #1a1a1a;
+  --bg-elevated: #1a1a1a;
+
+  /* Accent */
+  --accent-primary: #38bdf8;
+  --accent-secondary: #0ea5e9;
+  --accent-gradient: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  --accent-gradient-hover: linear-gradient(135deg, #0ea5e9, #0284c7);
+
+  /* Text */
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b8;
+  --text-muted: #6b6b80;
+
+  /* Feedback */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-blur: blur(20px);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 10px rgba(56, 189, 248, 0.1);
+  --shadow-glow-accent: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+}
+
+/* ---------- App Container (Desktop centering) ---------- */
+#app-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 80px rgba(124, 58, 237, 0.08);
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3 {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; font-weight: 700; }
+h2 { font-size: 1.5rem; font-weight: 600; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-small { font-size: 0.875rem; }
+.text-caption { font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(18, 18, 26, 0.85);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--glass-bg);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-back:hover {
+  background: var(--bg-card-hover);
+}
+
+.btn-back svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Main Content ---------- */
+.main-content {
+  padding: var(--space-lg);
+  padding-bottom: 100px;
+  min-height: calc(100vh - 60px - 70px);
+}
+
+/* ---------- Bottom Nav ---------- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  background: rgba(10, 10, 15, 0.92);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--glass-border);
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-xs) var(--space-sm);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  border-radius: var(--radius-sm);
+  min-width: 60px;
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+  transition: var(--transition-normal);
+}
+
+.nav-item span {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.nav-item.active {
+  color: var(--accent-primary);
+}
+
+.nav-item.active svg {
+  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+}
+
+.nav-item:hover {
+  color: var(--text-secondary);
+}
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: var(--transition-normal);
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.card-icon.gradient {
+  background: var(--accent-gradient);
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.card-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.card-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Exercise / Workout Cards */
+.exercise-card, .workout-card {
+  margin-bottom: var(--space-md);
+}
+
+.exercise-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exercise-thumb img, .exercise-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.exercise-thumb .placeholder-icon {
+  color: var(--text-muted);
+  font-size: 1.5rem;
+}
+
+/* Card actions */
+.card-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  white-space: nowrap;
+  text-decoration: none;
+  line-height: 1.5;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:hover {
+  background: var(--accent-gradient-hover);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.btn-secondary {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #0ea472;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon.small {
+  width: 32px;
+  height: 32px;
+}
+
+.btn-lg {
+  padding: var(--space-md) var(--space-xl);
+  font-size: 1rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Inputs ---------- */
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  transition: var(--transition-normal);
+  outline: none;
+}
+
+.form-input::placeholder, .form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.form-input.error, .form-textarea.error {
+  border-color: var(--danger);
+  animation: shake 0.4s ease;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: var(--space-xs);
+}
+
+/* ---------- Media Upload Area ---------- */
+.media-upload-area {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border: 2px dashed var(--glass-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  overflow: hidden;
+  position: relative;
+}
+
+.media-upload-area:hover {
+  border-color: var(--accent-primary);
+  background: rgba(124, 58, 237, 0.05);
+}
+
+.media-upload-area.has-media {
+  border-style: solid;
+  border-color: var(--glass-border);
+  cursor: default;
+}
+
+.media-upload-area img, .media-upload-area video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.media-upload-placeholder {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.media-upload-placeholder svg {
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-sm);
+  opacity: 0.5;
+}
+
+.media-action-btns {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.media-action-btns .btn {
+  flex: 1;
+}
+
+/* ---------- Badge ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-accent {
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--accent-primary);
+}
+
+.badge-teal {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-secondary);
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.badge-muted {
+  background: rgba(107, 107, 128, 0.15);
+  color: var(--text-muted);
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition-normal);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  transform: translateY(100%);
+  transition: var(--transition-slow);
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0);
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-lg);
+  opacity: 0.4;
+}
+
+.modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+}
+
+/* ---------- Toast ---------- */
+.toast-container {
+  position: fixed;
+  top: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 440px;
+  width: calc(100% - var(--space-xl));
+  pointer-events: none;
+}
+
+.toast {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.toast-success {
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.toast-error {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.toast-info {
+  background: rgba(124, 58, 237, 0.9);
+  color: white;
+  border: 1px solid rgba(124, 58, 237, 0.5);
+}
+
+/* ---------- Checkbox List (for exercise selection modal) ---------- */
+.checkbox-list {
+  list-style: none;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.checkbox-item:hover {
+  background: var(--glass-bg);
+}
+
+.checkbox-custom {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--text-muted);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+
+.checkbox-item.checked .checkbox-custom {
+  background: var(--accent-gradient);
+  border-color: transparent;
+}
+
+.checkbox-item.checked .checkbox-custom::after {
+  content: '\2713';
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.checkbox-label {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+/* ---------- Sortable List ---------- */
+.sortable-list {
+  list-style: none;
+}
+
+.sortable-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  transition: var(--transition-fast);
+}
+
+.sortable-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.sortable-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  padding: var(--space-xs);
+}
+
+.sortable-handle:active {
+  cursor: grabbing;
+}
+
+.sortable-name {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.sortable-remove {
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  transition: var(--transition-fast);
+  background: none;
+  border: none;
+  display: flex;
+}
+
+.sortable-remove:hover {
+  color: var(--danger);
+}
+
+/* ---------- Player ---------- */
+.player-media {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-media img, .player-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.player-media .placeholder-icon {
+  font-size: 3rem;
+  color: var(--text-muted);
+}
+
+/* Timer Block */
+.player-block {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.player-block-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.player-block-header svg {
+  width: 16px;
+  height: 16px;
+}
+
+.timer-display {
+  text-align: center;
+  font-family: 'Inter', monospace;
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: var(--space-md) 0;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: var(--transition-fast);
+}
+
+.timer-display.running {
+  animation: timerGlow 2s ease-in-out infinite;
+}
+
+.timer-controls {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.timer-controls .btn {
+  flex: 1;
+  max-width: 100px;
+}
+
+/* Reps Block */
+.reps-display {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 4rem;
+  font-weight: 700;
+  padding: var(--space-sm) 0;
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.reps-display.pop {
+  animation: numberPop 0.2s ease;
+}
+
+.reps-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+.btn-rep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+.btn-rep:active {
+  transform: scale(0.92);
+}
+
+.btn-rep-minus {
+  width: 48px;
+  height: 48px;
+  font-size: 1.5rem;
+}
+
+.btn-rep-plus {
+  width: 64px;
+  height: 64px;
+  font-size: 2rem;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.2);
+}
+
+.btn-rep-plus:hover {
+  background: rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+.btn-rep-minus:hover {
+  background: var(--bg-card-hover);
+}
+
+.sets-history {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--glass-border);
+}
+
+.sets-history-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.set-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.set-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.set-pill.new {
+  animation: pillAppear 0.4s ease;
+}
+
+/* ---------- Search ---------- */
+.search-bar {
+  position: relative;
+  margin-bottom: var(--space-lg);
+}
+
+.search-bar svg {
+  position: absolute;
+  left: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}
+
+.search-bar input {
+  width: 100%;
+  padding: var(--space-md);
+  padding-left: 44px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition-normal);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-bar input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ---------- Empty State ---------- */
+.empty-state {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  animation: fadeFloat 0.6s ease;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-lg);
+  opacity: 0.3;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-state-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-lg);
+}
+
+/* ---------- Section Title ---------- */
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* ---------- Welcome ---------- */
+.welcome-section {
+  margin-bottom: var(--space-xl);
+}
+
+.welcome-greeting {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.welcome-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.welcome-emoji {
+  display: inline-block;
+  animation: wave 1.5s ease-in-out 0.5s 2;
+  transform-origin: 70% 70%;
+}
+
+/* ---------- Quick Actions grid ---------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.quick-action-card {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.quick-action-card:hover {
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.quick-action-card:active {
+  transform: scale(0.97);
+}
+
+.quick-action-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.quick-action-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---------- Exercise list in play mode ---------- */
+.play-exercise-list .card {
+  margin-bottom: var(--space-md);
+}
+
+.play-exercise-number {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeFloat {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes numberPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pillAppear {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes timerGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-30px); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes confettiBurst {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+/* Staggered animation utility */
+.stagger-item {
+  animation: fadeIn 0.35s ease both;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+.stagger-item:nth-child(7) { animation-delay: 0.35s; }
+.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+.stagger-item:nth-child(9) { animation-delay: 0.45s; }
+.stagger-item:nth-child(10) { animation-delay: 0.5s; }
+
+/* View Transition */
+.view-enter {
+  animation: slideInRight 0.3s ease both;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ---------- Utilities ---------- */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+/* ---------- Player Blocks Row (side by side) ---------- */
+.player-blocks-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.player-blocks-row .player-block {
+  margin-bottom: 0;
+  padding: var(--space-md);
+}
+
+.player-blocks-row .timer-display {
+  font-size: 2rem;
+  padding: var(--space-sm) 0;
+}
+
+.player-blocks-row .timer-controls {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.player-blocks-row .timer-controls .btn {
+  max-width: none;
+  font-size: 0.75rem;
+  padding: 6px 8px;
+}
+
+.player-blocks-row .reps-display {
+  font-size: 2.5rem;
+  padding: var(--space-xs) 0;
+}
+
+.player-blocks-row .reps-controls {
+  gap: var(--space-md);
+  margin-bottom: 0;
+}
+
+.player-blocks-row .btn-rep-plus {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+}
+
+.player-blocks-row .btn-rep-minus {
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+}
+
+/* ---------- Timer adjustment buttons ---------- */
+.timer-adjuster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  width: 100%;
+}
+
+.timer-adjust-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-timer-adj {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 8px 0;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-timer-adj:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.btn-timer-adj.highlight {
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.btn-timer-adj:active {
+  transform: scale(0.95);
+}
+
+.timer-main-controls {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+
+.timer-main-controls .btn {
+  flex: 1;
+  padding: 10px 4px;
+}
+
+/* ---------- Set Table (in player) ---------- */
+.sets-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  border-radius: var(--radius-sm);
+}
+
+.set-row.new {
+  animation: pillAppear 0.4s ease;
+}
+
+.set-number {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--success);
+  min-width: 45px;
+}
+
+.set-detail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ---------- Session History ---------- */
+.session-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+}
+
+.session-stat {
+  text-align: center;
+}
+
+.session-stat-value {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.session-stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.session-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.session-exercise-item {
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--glass-border);
+}
+
+.session-exercise-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: var(--space-xs);
+}
+
+/* File input hidden */
+.file-input-hidden {
+  display: none;
+}
+
+/* ---------- Player Collapsibles ---------- */
+.player-collapsible-item {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  overflow: hidden;
+}
+
+.player-collapsible-header {
+  padding: 12px var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.player-collapsible-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.player-collapsible-content {
+  padding: 0 var(--space-md) var(--space-md) var(--space-md);
+  animation: fadeIn 0.3s ease;
+}
+
+.player-collapsible-content.hidden {
+  display: none;
+}
+
+.player-collapsible-content img, .player-collapsible-content video {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  display: block;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.player-collapsible-content p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.collapsible-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  body { background: white; color: black; }
+  .bottom-nav, .header { display: none; }
+  #app-wrapper { max-width: 100%; box-shadow: none; }
+}
+
+
+
+/* ADDITIONAL MINIMAL DESIGN FOR ICONS AND CARDS */
+svg { width: 22px !important; height: 22px !important; color: var(--text-primary) !important; filter: drop-shadow(0 0 0 transparent) !important; opacity: 0.9; }
+.card { border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg-card); }
+.card::before { display: none !important; }
+.btn { border-radius: 8px !important; font-weight: 500 !important; }
+.bottom-nav { background: #000000 !important; border-top: 1px solid var(--bg-card); }
+.btn-minimal { background: none !important; border: none !important; opacity: 0.6; transition: var(--transition-fast); }
+.btn-minimal:hover { opacity: 1; }
+.dragging { opacity: 0.4; }
+.sortable-item[draggable="true"] { cursor: grab; }
+.sortable-item.drag-over { border-top: 2px solid var(--accent-primary); }
+
+</style>
+
+  <!-- Preload fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Wrapper (centered for desktop) -->
+  <div id="app-wrapper">
+    <div id="app-container">
+      <!-- Content injected by router -->
+    </div>
+  </div>
+
+  <!-- JS Modules (order matters) -->
+  <script>
+// --- ui.js ---
+/* ============================================
+   PhysioTrainer â€” UI Utilities
+   Toast, Modal, Rendering helpers
+   ============================================ */
+
+const UI = (() => {
+
+  // --- SVG Icons ---
+  
+  const svg = (path) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  const svgFilled = (path) => `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${path}</svg>`;
+
+  const icons = {
+    home: svg('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'),
+    dumbbell: svg('<path d="M14.4 14.4 9.6 9.6M6.3 15.3l-2.6-2.6a1 1 0 0 1 0-1.4l1.3-1.3a1 1 0 0 1 1.4 0l2.6 2.6a1 1 0 0 1 0 1.4l-1.3 1.3a1 1 0 0 1-1.4 0ZM17.7 8.7l2.6 2.6a1 1 0 0 1 0 1.4l-1.3 1.3a1 1 0 0 1-1.4 0l-2.6-2.6a1 1 0 0 1 0-1.4l1.3-1.3a1 1 0 0 1 1.4 0Z"/>'),
+    clipboard: svg('<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>'),
+    settings: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+    arrowLeft: svg('<polyline points="15 18 9 12 15 6"/>'),
+    arrowRight: svg('<polyline points="9 18 15 12 9 6"/>'),
+    plus: svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),
+    minus: svg('<line x1="5" y1="12" x2="19" y2="12"/>'),
+    x: svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'),
+    search: svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+    play: svg('<polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>'),
+    pause: svg('<rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/>'),
+    stop: svg('<rect x="6" y="6" width="12" height="12" fill="currentColor"/>'),
+    refresh: svg('<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>'),
+    check: svg('<polyline points="20 6 9 17 4 12"/>'),
+    trash: svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+    edit: svg('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>'),
+    upload: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),
+    image: svg('<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'),
+    video: svg('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>'),
+    clock: svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'),
+    hash: svg('<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>'),
+    grip: svgFilled('<circle cx="8" cy="5" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="8" cy="19" r="2"/><circle cx="16" cy="5" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="16" cy="19" r="2"/>'),
+    ai: svg('<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>'),
+    download: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'),
+    arrowUp: svg('<path d="M12 19V5M5 12l7-7 7 7"/>'),
+    arrowDown: svg('<path d="M12 5v14M5 12l7 7 7-7"/>'),
+    chevronDown: svg('<polyline points="6 9 12 15 18 9"/>'),
+    chevronUp: svg('<polyline points="18 15 12 9 6 15"/>'),
+    activity: svg('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>')
+  };
+function icon(name) {
+    return icons[name] || '';
+  }
+
+  // --- Toast ---
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    const iconHtml = type === 'success' ? '&#10003;' : type === 'error' ? '&#10005;' : '&#8505;';
+    toast.innerHTML = `<span>${iconHtml}</span> ${message}`;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 3200);
+  }
+
+  // --- Modal ---
+  let currentModalOverlay = null;
+
+  function handleModalPopState(e) {
+    if (currentModalOverlay) {
+      closeModal(true); // From pop state = true
+    }
+  }
+
+  function showModal(title, contentHtml, options = {}) {
+    closeModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'modal-overlay';
+
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <h3 class="modal-title">${title}</h3>
+        <div class="modal-body">${contentHtml}</div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+    currentModalOverlay = overlay;
+
+    // Support Android Back Button
+    window.history.pushState({ modalOpen: true }, '');
+    window.addEventListener('popstate', handleModalPopState);
+
+    // Click outside to close
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    // Animate in
+    requestAnimationFrame(() => {
+      overlay.classList.add('active');
+    });
+
+    return overlay;
+  }
+
+  function closeModal(fromPopState = false) {
+    if (currentModalOverlay) {
+      currentModalOverlay.classList.remove('active');
+      setTimeout(() => {
+        if (currentModalOverlay && currentModalOverlay.parentNode) {
+          currentModalOverlay.remove();
+        }
+        currentModalOverlay = null;
+      }, 300);
+      
+      window.removeEventListener('popstate', handleModalPopState);
+      
+      // If we are closing it programmatically instead of pressing back
+      if (!fromPopState && window.history.state && window.history.state.modalOpen) {
+        window.history.back();
+      }
+    }
+  }
+
+  function confirmModal(title, message, onConfirm) {
+    const content = `
+      <p style="color: var(--text-secondary); margin-bottom: var(--space-lg); line-height: 1.5;">${message}</p>
+      <div style="display: flex; gap: var(--space-md);">
+        <button class="btn btn-secondary btn-full" id="modal-cancel">Cancel</button>
+        <button class="btn btn-danger btn-full" id="modal-confirm">Confirm</button>
+      </div>
+    `;
+
+    const overlay = showModal(title, content);
+
+    overlay.querySelector('#modal-cancel').addEventListener('click', closeModal);
+    overlay.querySelector('#modal-confirm').addEventListener('click', () => {
+      closeModal();
+      if (onConfirm) onConfirm();
+    });
+  }
+
+  function tripleActionModal(title, message, btn1Text, on1, btn2Text, on2, btn3Text, on3) {
+    const content = `
+      <p style="color: var(--text-secondary); margin-bottom: var(--space-lg); line-height: 1.5;">${message}</p>
+      <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+        <button class="btn btn-success btn-full" id="modal-btn-1">${btn1Text}</button>
+        <button class="btn btn-danger btn-full" id="modal-btn-2">${btn2Text}</button>
+        <button class="btn btn-secondary btn-full" id="modal-btn-3">${btn3Text}</button>
+      </div>
+    `;
+
+    const overlay = showModal(title, content);
+
+    overlay.querySelector('#modal-btn-1').addEventListener('click', () => { closeModal(); if (on1) on1(); });
+    overlay.querySelector('#modal-btn-2').addEventListener('click', () => { closeModal(); if (on2) on2(); });
+    overlay.querySelector('#modal-btn-3').addEventListener('click', () => { closeModal(); if (on3) on3(); });
+  }
+
+  // --- Image Compression ---
+  function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxWidth) {
+            h = (maxWidth / w) * h;
+            w = maxWidth;
+          }
+
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function generateThumbnail(dataUrl, maxSize = 200) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+
+        if (w > h) {
+          if (w > maxSize) { h = (maxSize / w) * h; w = maxSize; }
+        } else {
+          if (h > maxSize) { w = (maxSize / h) * w; h = maxSize; }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+
+        resolve(canvas.toDataURL('image/jpeg', 0.6));
+      };
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // --- Time formatting ---
+  function formatTime(totalSeconds) {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  // --- Greeting based on time ---
+  function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  return {
+    icon,
+    showToast,
+    showModal,
+    closeModal,
+    confirmModal,
+    compressImage,
+    generateThumbnail,
+    readFileAsDataUrl,
+    formatTime,
+    getGreeting,
+    tripleActionModal,
+  };
+})();
+
+
+// --- storage.js ---
+/* ============================================
+   PhysioTrainer â€” Storage Module
+   Gestione persistenza dati via localStorage
+   ============================================ */
+
+const Storage = (() => {
+  const KEYS = {
+    exercises: 'pt_exercises',
+    workouts: 'pt_workouts',
+    sessions: 'pt_sessions',
+    settings: 'pt_settings',
+  };
+
+  // --- Helpers ---
+  function _get(key) {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error(`Storage read error for ${key}:`, e);
+      return [];
+    }
+  }
+
+  function _set(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      console.error(`Storage write error for ${key}:`, e);
+      if (e.name === 'QuotaExceededError') {
+        UI.showToast('Storage space exceeded! Please delete some data.', 'error');
+      }
+      return false;
+    }
+  }
+
+  function _generateId(prefix) {
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+  }
+
+  // --- Exercises ---
+  function getExercises() {
+    return _get(KEYS.exercises);
+  }
+
+  function getExercise(id) {
+    return getExercises().find(ex => ex.id === id) || null;
+  }
+
+  function saveExercise(exercise) {
+    const exercises = getExercises();
+    const now = new Date().toISOString();
+
+    if (exercise.id) {
+      // Update
+      const index = exercises.findIndex(ex => ex.id === exercise.id);
+      if (index !== -1) {
+        exercises[index] = { ...exercises[index], ...exercise, updatedAt: now };
+        _set(KEYS.exercises, exercises);
+        return exercises[index];
+      }
+    }
+
+    // Create
+    const newExercise = {
+      id: _generateId('ex'),
+      name: exercise.name || 'Unnamed Exercise',
+      mediaType: exercise.mediaType || 'none',
+      mediaData: exercise.mediaData || null,
+      mediaThumbnail: exercise.mediaThumbnail || null,
+      mediaSource: exercise.mediaSource || null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    exercises.push(newExercise);
+    _set(KEYS.exercises, exercises);
+    return newExercise;
+  }
+
+  function deleteExercise(id) {
+    let exercises = getExercises();
+    const before = exercises.length;
+    exercises = exercises.filter(ex => ex.id !== id);
+    if (exercises.length < before) {
+      _set(KEYS.exercises, exercises);
+
+      // Remove from all workouts that reference this exercise
+      const workouts = getWorkouts();
+      let workoutsChanged = false;
+      workouts.forEach(wk => {
+        const idx = wk.exerciseIds.indexOf(id);
+        if (idx !== -1) {
+          wk.exerciseIds.splice(idx, 1);
+          wk.updatedAt = new Date().toISOString();
+          workoutsChanged = true;
+        }
+      });
+      if (workoutsChanged) {
+        _set(KEYS.workouts, workouts);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function getWorkoutsUsingExercise(exerciseId) {
+    return getWorkouts().filter(wk => wk.exerciseIds.includes(exerciseId));
+  }
+
+  // --- Workouts ---
+  function getWorkouts() {
+    return _get(KEYS.workouts);
+  }
+
+  function getWorkout(id) {
+    return getWorkouts().find(wk => wk.id === id) || null;
+  }
+
+  function saveWorkout(workout) {
+    const workouts = getWorkouts();
+    const now = new Date().toISOString();
+
+    if (workout.id) {
+      const index = workouts.findIndex(wk => wk.id === workout.id);
+      if (index !== -1) {
+        workouts[index] = { ...workouts[index], ...workout, updatedAt: now };
+        _set(KEYS.workouts, workouts);
+        return workouts[index];
+      }
+    }
+
+    const newWorkout = {
+      id: _generateId('wk'),
+      name: workout.name || 'Unnamed Workout',
+      exerciseIds: workout.exerciseIds || [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    workouts.push(newWorkout);
+    _set(KEYS.workouts, workouts);
+    return newWorkout;
+  }
+
+  function deleteWorkout(id) {
+    let workouts = getWorkouts();
+    const before = workouts.length;
+    workouts = workouts.filter(wk => wk.id !== id);
+    if (workouts.length < before) {
+      _set(KEYS.workouts, workouts);
+      return true;
+    }
+    return false;
+  }
+
+  // --- Sessions ---
+  function getSessions() {
+    return _get(KEYS.sessions);
+  }
+
+  function saveSession(session) {
+    const sessions = getSessions();
+    const newSession = {
+      id: _generateId('ws'),
+      workoutId: session.workoutId,
+      date: new Date().toISOString(),
+      exercises: session.exercises || [],
+      completed: session.completed || false,
+    };
+    sessions.push(newSession);
+    _set(KEYS.sessions, sessions);
+    return newSession;
+  }
+
+  function deleteSession(id) {
+    let sessions = getSessions();
+    const before = sessions.length;
+    sessions = sessions.filter(s => s.id !== id);
+    if (sessions.length < before) {
+      _set(KEYS.sessions, sessions);
+      return true;
+    }
+    return false;
+  }
+
+  function deleteSessionsByWorkout(workoutId) {
+    let sessions = getSessions();
+    const before = sessions.length;
+    sessions = sessions.filter(s => s.workoutId !== workoutId);
+    if (sessions.length < before) {
+      _set(KEYS.sessions, sessions);
+      return true;
+    }
+    return false;
+  }
+
+  // --- Settings ---
+  function getSettings() {
+    try {
+      const data = localStorage.getItem(KEYS.settings);
+      return data ? JSON.parse(data) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function getSetting(key) {
+    return getSettings()[key] || null;
+  }
+
+  function saveSetting(key, value) {
+    const settings = getSettings();
+    if (value === null) {
+      delete settings[key];
+    } else {
+      settings[key] = value;
+    }
+    _set(KEYS.settings, settings);
+    return true;
+  }
+
+  // --- Utility ---
+  function getStorageUsage() {
+    let total = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += localStorage.getItem(key).length * 2; // UTF-16 = 2 bytes per char
+      }
+    }
+    return {
+      usedBytes: total,
+      usedMB: (total / (1024 * 1024)).toFixed(2),
+      limitMB: 5,
+      percentUsed: Math.round((total / (5 * 1024 * 1024)) * 100),
+    };
+  }
+
+  function exportData() {
+    return JSON.stringify({
+      exercises: getExercises(),
+      workouts: getWorkouts(),
+      sessions: getSessions(),
+      exportedAt: new Date().toISOString(),
+    });
+  }
+
+  function importData(jsonString) {
+    try {
+      const data = JSON.parse(jsonString);
+      if (data.exercises) _set(KEYS.exercises, data.exercises);
+      if (data.workouts) _set(KEYS.workouts, data.workouts);
+      if (data.sessions) _set(KEYS.sessions, data.sessions);
+      return true;
+    } catch (e) {
+      console.error('Import error:', e);
+      return false;
+    }
+  }
+
+  return {
+    getExercises,
+    getExercise,
+    saveExercise,
+    deleteExercise,
+    getWorkoutsUsingExercise,
+    getWorkouts,
+    getWorkout,
+    saveWorkout,
+    deleteWorkout,
+    getSessions,
+    saveSession,
+    deleteSession,
+    deleteSessionsByWorkout,
+    getSetting,
+    saveSetting,
+    getStorageUsage,
+    exportData,
+    importData,
+  };
+})();
+
+
+// --- exercises.js ---
+/* ============================================
+   PhysioTrainer â€” Exercises Module
+   CRUD + Views per gli esercizi
+   ============================================ */
+
+const Exercises = (() => {
+
+  // --- Render: Exercise list view ---
+  function renderList() {
+    const exercises = Storage.getExercises();
+
+    let html = `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">My Exercises</span>
+        </div>
+        <button class="btn btn-primary" onclick="App.navigate('#exercise/new')">
+          ${UI.icon('plus')} New
+        </button>
+      </div>
+      <div class="main-content view-enter">
+    `;
+
+    if (exercises.length === 0) {
+      html += `
+        <div class="empty-state">
+          <div class="empty-state-icon" style="font-size:3rem; opacity:0.3;">${UI.icon('activity')}</div>
+          <div class="empty-state-title">No exercises</div>
+          <div class="empty-state-text">Create your first exercise to get started</div>
+          <button class="btn btn-primary btn-lg" onclick="App.navigate('#exercise/new')">
+            ${UI.icon('plus')} Create Exercise
+          </button>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="search-bar">
+          ${UI.icon('search')}
+          <input type="text" id="exercise-search" placeholder="Search exercises..." oninput="Exercises.filterList(this.value)">
+        </div>
+        <div id="exercise-list-container">
+      `;
+
+      exercises.forEach((ex, i) => {
+        html += renderExerciseCard(ex, i);
+      });
+
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  function renderExerciseCard(ex, index) {
+    const thumbHtml = ex.mediaThumbnail
+      ? `<img src="${ex.mediaThumbnail}" alt="${ex.name}">`
+      : ex.mediaData && ex.mediaType === 'image'
+      ? `<img src="${ex.mediaData}" alt="${ex.name}">`
+      : `<span class="placeholder-icon">${UI.icon('activity')}</span>`;
+
+    const mediaBadge = ex.mediaType === 'image'
+      ? `<span class="badge badge-accent">Image</span>`
+      : ex.mediaType === 'video'
+      ? `<span class="badge badge-teal">Video</span>`
+      : `<span class="badge badge-muted">No media</span>`;
+
+    return `
+      <div class="card exercise-card stagger-item" data-exercise-name="${ex.name.toLowerCase()}" onclick="App.navigate('#exercise/${ex.id}')">
+        <div class="card-row">
+          <div class="exercise-thumb">${thumbHtml}</div>
+          <div class="card-body">
+            <div class="card-title">${ex.name}</div>
+            <div class="flex gap-sm" style="margin-top:4px;">${mediaBadge}</div>
+          </div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-icon btn-secondary small" onclick="Exercises.confirmDelete('${ex.id}')" title="Delete">
+              ${UI.icon('trash')}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function filterList(query) {
+    const cards = document.querySelectorAll('.exercise-card');
+    const q = query.toLowerCase().trim();
+    cards.forEach(card => {
+      const name = card.getAttribute('data-exercise-name');
+      card.style.display = name.includes(q) ? '' : 'none';
+    });
+  }
+
+  // --- Render: Exercise create/edit form ---
+  function renderForm(exerciseId) {
+    const isEdit = !!exerciseId;
+    const exercise = isEdit ? Storage.getExercise(exerciseId) : null;
+
+    if (isEdit && !exercise) {
+      return `
+        <div class="header">
+          <div class="header-left">
+            <button class="btn-back" onclick="App.goBack('#exercises')">${UI.icon('arrowLeft')}</button>
+            <span class="header-title">Exercise Not Found</span>
+          </div>
+        </div>
+        <div class="main-content"><div class="empty-state">
+          <div class="empty-state-icon" style="font-size:3rem; opacity:0.3;">?</div>
+          <div class="empty-state-title">Exercise not found</div>
+          <button class="btn btn-primary" onclick="App.navigate('#exercises')">Back to list</button>
+        </div></div>
+      `;
+    }
+
+    const title = isEdit ? 'Edit Exercise' : 'New Exercise';
+    const name = exercise ? exercise.name : '';
+    const mediaHtml = exercise && exercise.mediaData
+      ? exercise.mediaType === 'video'
+        ? `<video src="${exercise.mediaData}" controls style="width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;"></video>`
+        : `<img src="${exercise.mediaData}" alt="${name}" style="width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;">`
+      : '';
+
+    const hasMedia = exercise && exercise.mediaData;
+
+    return `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#exercises')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">${title}</span>
+        </div>
+        <button class="btn btn-primary" id="exercise-save-btn" onclick="Exercises.save()">
+          ${UI.icon('check')} Save
+        </button>
+      </div>
+      <div class="main-content view-enter">
+        <input type="hidden" id="exercise-id" value="${exerciseId || ''}">
+
+        <div class="form-group">
+          <label class="form-label">Exercise Name</label>
+          <input type="text" class="form-input" id="exercise-name" placeholder="e.g.: Stretching" value="${name}" maxlength="100">
+          <div class="form-error hidden" id="name-error">Name is required</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="exercise-description" placeholder="Explain how to perform the exercise..." rows="4">${exercise ? (exercise.description || '') : ''}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Media</label>
+          <div class="media-upload-area ${hasMedia ? 'has-media' : ''}" id="media-preview-area" onclick="Exercises.triggerUpload()">
+            ${hasMedia ? mediaHtml : `
+              <div class="media-upload-placeholder">
+                ${UI.icon('upload')}
+                <div class="text-small">Click to upload</div>
+              </div>
+            `}
+          </div>
+          <input type="file" class="file-input-hidden" id="media-file-input" accept="image/*,video/*" onchange="Exercises.handleFileSelect(event)">
+        </div>
+
+        <div class="media-action-btns">
+          <button class="btn btn-secondary" onclick="Exercises.triggerUpload()">
+            ${UI.icon('upload')} Upload File
+          </button>
+          <button class="btn btn-secondary" onclick="Exercises.searchGoogleImages()">
+            ${UI.icon('search')} Google Search
+          </button>
+        </div>
+
+        ${hasMedia ? `
+          <div style="margin-top: var(--space-md);">
+            <button class="btn btn-danger btn-full" onclick="Exercises.removeMedia()">
+              ${UI.icon('trash')} Remove Media
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // --- State for current media ---
+  let currentMedia = {
+    type: 'none',
+    data: null,
+    thumbnail: null,
+    source: null,
+  };
+
+  function initFormMedia(exerciseId) {
+    if (exerciseId) {
+      const ex = Storage.getExercise(exerciseId);
+      if (ex) {
+        currentMedia = {
+          type: ex.mediaType || 'none',
+          data: ex.mediaData,
+          thumbnail: ex.mediaThumbnail,
+          source: ex.mediaSource,
+        };
+        return;
+      }
+    }
+    currentMedia = { type: 'none', data: null, thumbnail: null, source: null };
+  }
+
+  function triggerUpload() {
+    document.getElementById('media-file-input').click();
+  }
+
+  async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const maxSizeMB = file.type.startsWith('video/') ? 5 : 2;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      UI.showToast(`File too large! Max ${maxSizeMB}MB.`, 'error');
+      return;
+    }
+
+    try {
+      const area = document.getElementById('media-preview-area');
+
+      if (file.type.startsWith('image/')) {
+        const dataUrl = await UI.compressImage(file, 1200, 0.85);
+        const thumbnail = await UI.generateThumbnail(dataUrl, 200);
+        currentMedia = { type: 'image', data: dataUrl, thumbnail, source: 'upload' };
+
+        area.classList.add('has-media');
+        area.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
+        area.onclick = null;
+      } else if (file.type.startsWith('video/')) {
+        const dataUrl = await UI.readFileAsDataUrl(file);
+        currentMedia = { type: 'video', data: dataUrl, thumbnail: null, source: 'upload' };
+
+        area.classList.add('has-media');
+        area.innerHTML = `<video src="${dataUrl}" controls></video>`;
+        area.onclick = null;
+      }
+
+      UI.showToast('File uploaded!', 'success');
+    } catch (err) {
+      console.error('File load error:', err);
+      UI.showToast('Error uploading file', 'error');
+    }
+  }
+
+  function removeMedia() {
+    currentMedia = { type: 'none', data: null, thumbnail: null, source: null };
+    const area = document.getElementById('media-preview-area');
+    area.classList.remove('has-media');
+    area.innerHTML = `
+      <div class="media-upload-placeholder">
+        ${UI.icon('upload')}
+        <div class="text-small">Click to upload</div>
+      </div>
+    `;
+    area.onclick = () => Exercises.triggerUpload();
+    UI.showToast('Media removed', 'info');
+  }
+
+  // --- Google Image Search ---
+  function searchGoogleImages() {
+    const nameInput = document.getElementById('exercise-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+
+    if (!name) {
+      UI.showToast('Please enter an exercise name first', 'error');
+      return;
+    }
+
+    const query = encodeURIComponent(name + ' physiotherapy exercise');
+    const url = `https://www.google.com/search?tbm=isch&q=${query}`;
+    window.open(url, '_blank');
+  }
+
+  // --- Save Exercise ---
+  function save() {
+    const idInput = document.getElementById('exercise-id');
+    const nameInput = document.getElementById('exercise-name');
+    const nameError = document.getElementById('name-error');
+
+    const name = nameInput.value.trim();
+
+    if (!name) {
+      nameInput.classList.add('error');
+      nameError.classList.remove('hidden');
+      setTimeout(() => {
+        nameInput.classList.remove('error');
+      }, 500);
+      return;
+    }
+
+    nameError.classList.add('hidden');
+
+    const exerciseData = {
+      name,
+      description: document.getElementById('exercise-description').value,
+      mediaType: currentMedia.type,
+      mediaData: currentMedia.data,
+      mediaThumbnail: currentMedia.thumbnail,
+      mediaSource: currentMedia.source,
+    };
+
+    if (idInput.value) {
+      exerciseData.id = idInput.value;
+    }
+
+    Storage.saveExercise(exerciseData);
+    UI.showToast(idInput.value ? 'Exercise updated!' : 'Exercise created!', 'success');
+    App.navigate('#exercises');
+  }
+
+  // --- Delete Exercise ---
+  function confirmDelete(id) {
+    const exercise = Storage.getExercise(id);
+    if (!exercise) return;
+
+    const workoutsUsing = Storage.getWorkoutsUsingExercise(id);
+    let message = `Are you sure you want to delete the exercise "${exercise.name}"?`;
+    if (workoutsUsing.length > 0) {
+      const names = workoutsUsing.map(w => w.name).join(', ');
+      message += `<br><br><span style="color: var(--warning);">This exercise is used in: ${names}</span><br>It will be removed from these workouts.`;
+    }
+
+    UI.confirmModal('Delete Exercise', message, () => {
+      Storage.deleteExercise(id);
+      UI.showToast('Exercise deleted', 'success');
+      App.navigate('#exercises');
+    });
+  }
+
+  return {
+    renderList,
+    renderForm,
+    initFormMedia,
+    filterList,
+    triggerUpload,
+    handleFileSelect,
+    removeMedia,
+    searchGoogleImages,
+    save,
+    confirmDelete,
+  };
+})();
+
+
+// --- workouts.js ---
+/* ============================================
+   PhysioTrainer â€” Workouts Module
+   CRUD + Views per gli allenamenti
+   ============================================ */
+
+const Workouts = (() => {
+
+  // State for workout editor
+  let selectedExerciseIds = [];
+
+  // --- Render: Workout list view ---
+  function renderList() {
+    const workouts = Storage.getWorkouts();
+
+    let html = `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">My Workouts</span>
+        </div>
+        <button class="btn btn-primary" onclick="App.navigate('#workout/new')">
+          ${UI.icon('plus')} New
+        </button>
+      </div>
+      <div class="main-content view-enter">
+    `;
+
+    if (workouts.length === 0) {
+      html += `
+        <div class="empty-state">
+          <div class="empty-state-icon">${UI.icon('clipboard')}</div>
+          <div class="empty-state-title">No workouts</div>
+          <div class="empty-state-text">Create your first workout by combining exercises</div>
+          <button class="btn btn-primary btn-lg" onclick="App.navigate('#workout/new')">
+            ${UI.icon('plus')} Create Workout
+          </button>
+        </div>
+      `;
+    } else {
+      workouts.forEach((wk, i) => {
+        const count = wk.exerciseIds.length;
+        html += `
+          <div class="card workout-card stagger-item" style="padding: var(--space-md);">
+            <div style="margin-bottom: var(--space-sm); cursor: pointer;" onclick="App.navigate('#play/${wk.id}')">
+              <div class="card-title" style="font-size: 1.2rem; margin-bottom: 4px;">${wk.name}</div>
+              <div class="card-subtitle" style="font-size: 0.9rem;">${count} exercise${count === 1 ? '' : 's'}</div>
+            </div>
+            <div class="flex gap-sm" style="margin-top: var(--space-md);">
+              <button class="btn btn-primary flex-1" style="padding: 10px;" onclick="App.navigate('#play/${wk.id}')">
+                ${UI.icon('play')} Start
+              </button>
+              <button class="btn btn-icon btn-secondary" onclick="App.navigate('#workout/${wk.id}')" title="Edit">
+                ${UI.icon('edit')}
+              </button>
+              <button class="btn btn-icon btn-secondary" onclick="Workouts.confirmDelete('${wk.id}')" title="Delete">
+                ${UI.icon('trash')}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  // --- Render: Workout create/edit form ---
+  function renderForm(workoutId) {
+    const isEdit = !!workoutId;
+    const workout = isEdit ? Storage.getWorkout(workoutId) : null;
+
+    if (isEdit && !workout) {
+      return `
+        <div class="header">
+          <div class="header-left">
+            <button class="btn-back" onclick="App.goBack('#workouts')">${UI.icon('arrowLeft')}</button>
+            <span class="header-title">Workout not found</span>
+          </div>
+        </div>
+        <div class="main-content"><div class="empty-state">
+          <div class="empty-state-icon">Â¤Â·</div>
+          <div class="empty-state-title">Workout not found</div>
+          <button class="btn btn-primary" onclick="App.navigate('#workouts')">Back to list</button>
+        </div></div>
+      `;
+    }
+
+    selectedExerciseIds = workout ? [...workout.exerciseIds] : [];
+    const title = isEdit ? 'Edit Workout' : 'New Workout';
+    const name = workout ? workout.name : '';
+
+    let html = `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#workouts')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">${title}</span>
+        </div>
+        <button class="btn btn-primary" id="workout-save-btn" onclick="Workouts.save()">
+          ${UI.icon('check')} Save
+        </button>
+      </div>
+      <div class="main-content view-enter">
+        <input type="hidden" id="workout-id" value="${workoutId || ''}">
+
+        <div class="form-group">
+          <label class="form-label">Workout Name</label>
+          <input type="text" class="form-input" id="workout-name" placeholder="E.g.: Morning Knee Session" value="${name}" maxlength="100">
+          <div class="form-error hidden" id="wk-name-error">Name is required</div>
+        </div>
+
+        <div class="form-group">
+          <div class="flex-between mb-md">
+            <label class="form-label" style="margin-bottom:0;">Selected Exercises (<span id="selected-count">${selectedExerciseIds.length}</span>)</label>
+          </div>
+          <div id="selected-exercises-list">
+            ${renderSelectedExercises()}
+          </div>
+          <div class="form-error hidden" id="wk-exercises-error">Please select at least one exercise</div>
+        </div>
+
+        <button class="btn btn-secondary btn-full btn-lg" onclick="Workouts.showExerciseSelector()">
+          ${UI.icon('plus')} Add Exercises
+        </button>
+      </div>
+    `;
+
+    return html;
+  }
+
+  function renderSelectedExercises() {
+    if (selectedExerciseIds.length === 0) {
+      return `
+        <div class="empty-state" style="padding: var(--space-lg);">
+          <div class="empty-state-icon" style="font-size:2rem;">${UI.icon('clipboard')}</div>
+          <div class="empty-state-text">No exercises selected</div>
+        </div>
+      `;
+    }
+
+    let html = '<ul class="sortable-list">';
+    selectedExerciseIds.forEach((id, index) => {
+      const ex = Storage.getExercise(id);
+      if (!ex) return;
+      html += `
+        <li class="sortable-item stagger-item">
+          <div class="flex-center sortable-handle" title="Drag to reorder" style="cursor: grab; padding: 0 var(--space-sm);">
+            ${UI.icon('grip')}
+          </div>
+          <span class="play-exercise-number">${index + 1}</span>
+          <span class="sortable-name">${ex.name}</span>
+          <div class="flex gap-sm">
+            ${index > 0 ? `<button class="btn btn-icon small btn-secondary" onclick="Workouts.moveExercise(${index}, -1)" title="Move up">${UI.icon('arrowUp')}</button>` : ''}
+            ${index < selectedExerciseIds.length - 1 ? `<button class="btn btn-icon small btn-secondary" onclick="Workouts.moveExercise(${index}, 1)" title="Move down">${UI.icon('arrowDown')}</button>` : ''}
+            <button class="btn btn-icon small btn-minimal" onclick="Workouts.removeExercise(${index})" title="Remove">${UI.icon('trash')}</button>
+          </div>
+        </li>
+      `;
+    });
+    html += '</ul>';
+    return html;
+  }
+
+  function refreshSelectedList() {
+    const container = document.getElementById('selected-exercises-list');
+    if (!container) return;
+    
+    container.innerHTML = renderSelectedExercises();
+    
+    const countEl = document.getElementById('selected-count');
+    if (countEl) countEl.textContent = selectedExerciseIds.length;
+
+    // --- Initialize SortableJS for better mobile support ---
+    const el = container.querySelector('.sortable-list');
+    if (el && typeof Sortable !== 'undefined') {
+      Sortable.create(el, {
+        handle: '.sortable-handle',
+        animation: 200,
+        ghostClass: 'sortable-ghost',
+        onEnd: (evt) => {
+          const item = selectedExerciseIds.splice(evt.oldIndex, 1)[0];
+          selectedExerciseIds.splice(evt.newIndex, 0, item);
+          // Update the index display numbers manually to avoid UI flash
+          const numbers = el.querySelectorAll('.play-exercise-number');
+          numbers.forEach((n, i) => n.textContent = i + 1);
+        }
+      });
+    }
+  }
+
+  function moveExercise(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= selectedExerciseIds.length) return;
+    const temp = selectedExerciseIds[index];
+    selectedExerciseIds[index] = selectedExerciseIds[newIndex];
+    selectedExerciseIds[newIndex] = temp;
+    refreshSelectedList();
+  }
+
+  function removeExercise(index) {
+    selectedExerciseIds.splice(index, 1);
+    refreshSelectedList();
+  }
+
+  // --- Exercise Selector Modal ---
+  function showExerciseSelector() {
+    const allExercises = Storage.getExercises();
+
+    if (allExercises.length === 0) {
+      UI.showToast('No exercises available. Create one first!', 'error');
+      return;
+    }
+
+    let listItems = '';
+    allExercises.forEach(ex => {
+      const isChecked = selectedExerciseIds.includes(ex.id);
+      listItems += `
+        <li class="checkbox-item ${isChecked ? 'checked' : ''}" data-id="${ex.id}" data-name="${ex.name.toLowerCase()}" onclick="Workouts.toggleExerciseSelection(this, '${ex.id}')">
+          <div class="checkbox-custom"></div>
+          <span class="checkbox-label">${ex.name}</span>
+        </li>
+      `;
+    });
+
+    const content = `
+      <div class="search-bar" style="margin-bottom: var(--space-md);">
+        ${UI.icon('search')}
+        <input type="text" placeholder="Search exercises..." oninput="Workouts.filterSelector(this.value)">
+      </div>
+      <ul class="checkbox-list" id="exercise-selector-list">
+        ${listItems}
+      </ul>
+      <div style="margin-top: var(--space-lg);">
+        <button class="btn btn-primary btn-full btn-lg" onclick="Workouts.confirmSelection()">
+          ${UI.icon('check')} Confirm Selection
+        </button>
+      </div>
+    `;
+
+    UI.showModal('Select Exercises', content);
+  }
+
+  function toggleExerciseSelection(element, exerciseId) {
+    element.classList.toggle('checked');
+  }
+
+  function filterSelector(query) {
+    const items = document.querySelectorAll('#exercise-selector-list .checkbox-item');
+    const q = query.toLowerCase().trim();
+    items.forEach(item => {
+      const name = item.getAttribute('data-name');
+      item.style.display = name.includes(q) ? '' : 'none';
+    });
+  }
+
+  function confirmSelection() {
+    const checkedItems = document.querySelectorAll('#exercise-selector-list .checkbox-item.checked');
+    selectedExerciseIds = [];
+    checkedItems.forEach(item => {
+      selectedExerciseIds.push(item.getAttribute('data-id'));
+    });
+    refreshSelectedList();
+    UI.closeModal();
+    UI.showToast(`${selectedExerciseIds.length} exercise${selectedExerciseIds.length === 1 ? '' : 's'} selected`, 'success');
+  }
+
+  // --- Save Workout ---
+  function save() {
+    const idInput = document.getElementById('workout-id');
+    const nameInput = document.getElementById('workout-name');
+    const nameError = document.getElementById('wk-name-error');
+    const exError = document.getElementById('wk-exercises-error');
+
+    const name = nameInput.value.trim();
+    let hasError = false;
+
+    if (!name) {
+      nameInput.classList.add('error');
+      nameError.classList.remove('hidden');
+      setTimeout(() => nameInput.classList.remove('error'), 500);
+      hasError = true;
+    } else {
+      nameError.classList.add('hidden');
+    }
+
+    if (selectedExerciseIds.length === 0) {
+      exError.classList.remove('hidden');
+      hasError = true;
+    } else {
+      exError.classList.add('hidden');
+    }
+
+    if (hasError) return;
+
+    const workoutData = {
+      name,
+      exerciseIds: [...selectedExerciseIds],
+    };
+
+    if (idInput.value) {
+      workoutData.id = idInput.value;
+    }
+
+    Storage.saveWorkout(workoutData);
+    UI.showToast(idInput.value ? 'Workout updated!' : 'Workout created!', 'success');
+    App.navigate('#workouts');
+  }
+
+  // --- Delete Workout ---
+  function confirmDelete(id) {
+    const workout = Storage.getWorkout(id);
+    if (!workout) return;
+
+    UI.confirmModal('Delete Workout',
+      `Are you sure you want to delete the workout "${workout.name}"?<br>This action cannot be undone.`,
+      () => {
+        Storage.deleteWorkout(id);
+        UI.showToast('Workout deleted', 'success');
+        App.navigate('#workouts');
+      }
+    );
+  }
+
+  return {
+    renderList,
+    renderForm,
+    showExerciseSelector,
+    toggleExerciseSelection,
+    filterSelector,
+    confirmSelection,
+    moveExercise,
+    removeExercise,
+    save,
+    confirmDelete,
+  };
+})();
+
+
+// --- player.js ---
+/* ============================================
+   PhysioTrainer â€” Player Module
+   Timer + Reps Counter for workout execution
+   ============================================ */
+
+const Player = (() => {
+
+  // Timer state
+  let timerInterval = null;
+  let timerSeconds = 0; // Remaining
+  let timerInitialSeconds = 0; // Total set time
+  let timerRunning = false;
+
+  // Reps state
+  let currentReps = 0;
+  let completedSets = []; // Array of { reps, time } objects
+
+  // Session state
+  let currentWorkoutId = null;
+  let currentExerciseId = null;
+  let sessionData = {}; // { workoutId: { exerciseId: { sets: [{reps, time}], totalTime: 0 } } }
+
+  // History state
+  const expandedGroups = new Set();
+
+  // --- Render: Exercise selection for a workout ---
+  function renderExerciseSelection(workoutId) {
+    const workout = Storage.getWorkout(workoutId);
+    if (!workout) {
+      return `
+        <div class="header">
+          <div class="header-left">
+            <button class="btn-back" onclick="App.goBack('#workouts')">${UI.icon('arrowLeft')}</button>
+            <span class="header-title">Workout Not Found</span>
+          </div>
+        </div>
+        <div class="main-content"><div class="empty-state">
+          <div class="empty-state-icon">?</div>
+          <div class="empty-state-title">Workout not found</div>
+          <button class="btn btn-primary" onclick="App.navigate('#workouts')">Back to workouts</button>
+        </div></div>
+      `;
+    }
+
+    currentWorkoutId = workoutId;
+    if (!sessionData[workoutId]) {
+      sessionData[workoutId] = {};
+    }
+
+    let html = `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="Player.exitWorkout()">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">${workout.name}</span>
+        </div>
+      </div>
+      <div class="main-content view-enter">
+        <p class="text-secondary mb-lg">Select an exercise to start</p>
+        <div class="play-exercise-list">
+    `;
+
+    workout.exerciseIds.forEach((exId, index) => {
+      const ex = Storage.getExercise(exId);
+      if (!ex) return;
+
+      const thumbHtml = ex.mediaThumbnail
+        ? `<img src="${ex.mediaThumbnail}" alt="${ex.name}">`
+        : ex.mediaData && ex.mediaType === 'image'
+        ? `<img src="${ex.mediaData}" alt="${ex.name}">`
+        : `<span class="placeholder-icon">&#9899;</span>`;
+
+      const exSession = sessionData[workoutId]?.[exId];
+      const setsInfo = exSession && exSession.sets.length > 0
+        ? `<span class="badge badge-success">${exSession.sets.length} set${exSession.sets.length === 1 ? '' : 's'} completed</span>`
+        : `<span class="card-subtitle">Tap to start</span>`;
+
+      html += `
+        <div class="card stagger-item" onclick="App.navigate('#play/${workoutId}/${exId}')">
+          <div class="card-row">
+            <span class="play-exercise-number">${index + 1}</span>
+            <div class="exercise-thumb">${thumbHtml}</div>
+            <div class="card-body">
+              <div class="card-title">${ex.name}</div>
+              ${setsInfo}
+            </div>
+            <div class="card-arrow">${UI.icon('arrowRight')}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    return html;
+  }
+
+  // --- Render: Exercise Player ---
+  function renderPlayer(workoutId, exerciseId) {
+    const workout = Storage.getWorkout(workoutId);
+    const exercise = Storage.getExercise(exerciseId);
+
+    if (!workout || !exercise) {
+      return `
+        <div class="header">
+          <div class="header-left">
+            <button class="btn-back" onclick="App.goBack('#play/${workoutId}')">${UI.icon('arrowLeft')}</button>
+            <span class="header-title">Not Found</span>
+          </div>
+        </div>
+        <div class="main-content"><div class="empty-state">
+          <div class="empty-state-icon">${UI.icon('alertCircle')}</div>
+          <div class="empty-state-title">Data not found</div>
+        </div></div>
+      `;
+    }
+
+    currentWorkoutId = workoutId;
+    currentExerciseId = exerciseId;
+
+    // Restore session data
+    if (!sessionData[workoutId]) sessionData[workoutId] = {};
+    if (!sessionData[workoutId][exerciseId]) {
+      sessionData[workoutId][exerciseId] = { sets: [], totalTime: 0 };
+    }
+
+    // Reset timer and reps for this exercise
+    stopTimer();
+    timerSeconds = 0;
+    timerRunning = false;
+    currentReps = 0;
+    completedSets = [...sessionData[workoutId][exerciseId].sets];
+
+    // Media section
+    let mediaHtml = '';
+    if (exercise.mediaData && exercise.mediaType === 'image') {
+      mediaHtml = `<img src="${exercise.mediaData}" alt="${exercise.name}">`;
+    } else if (exercise.mediaData && exercise.mediaType === 'video') {
+      mediaHtml = `<video src="${exercise.mediaData}" controls playsinline></video>`;
+    } else {
+      mediaHtml = `<span class="placeholder-icon" style="font-size:3rem;color:var(--text-muted);">&#9899;</span>`;
+    }
+
+    // Sets history
+    const setsHistoryHtml = renderSetPills();
+
+    return `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="Player.backToList()">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">${exercise.name}</span>
+        </div>
+      </div>
+      <div class="main-content view-enter">
+        <!-- Collapsible sections for Media & Description -->
+        <div class="player-collapsibles mb-md">
+          <!-- Image/Video Section -->
+          <div class="player-collapsible-item">
+            <div class="player-collapsible-header" onclick="Player.toggleCollapsible('media')">
+              <span>Image</span>
+              <span id="collapsible-media-icon" class="collapsible-icon">${UI.icon('chevronDown')}</span>
+            </div>
+            <div id="collapsible-media-content" class="player-collapsible-content hidden">
+              ${mediaHtml}
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div class="player-collapsible-item">
+            <div class="player-collapsible-header" onclick="Player.toggleCollapsible('desc')">
+              <span>Description</span>
+              <span id="collapsible-desc-icon" class="collapsible-icon">${UI.icon('chevronDown')}</span>
+            </div>
+            <div id="collapsible-desc-content" class="player-collapsible-content hidden">
+              <p>${exercise.description || 'No description provided.'}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer + Reps side by side -->
+        <div class="player-blocks-row">
+          <!-- Timer Block -->
+          <div class="player-block">
+            <div class="player-block-header">
+              ${UI.icon('clock')}
+              <span>Timer</span>
+            </div>
+            <div class="timer-display" id="timer-display">00:00</div>
+            
+            <div class="timer-adjuster">
+              <div class="timer-adjust-row">
+                <button class="btn-timer-adj" onclick="Player.addTimerSeconds(-30)" title="-30 seconds">-30s</button>
+                <button class="btn-timer-adj" onclick="Player.addTimerSeconds(-1)" title="-1 second">-1s</button>
+                <button class="btn-timer-adj highlight" onclick="Player.addTimerSeconds(1)" title="+1 second">+1s</button>
+                <button class="btn-timer-adj highlight" onclick="Player.addTimerSeconds(30)" title="+30 seconds">+30s</button>
+              </div>
+            </div>
+
+            <div class="timer-main-controls">
+              <button class="btn btn-primary flex-1" id="timer-play-btn" onclick="Player.toggleTimer()">
+                ${UI.icon('play')} Start
+              </button>
+            </div>
+          </div>
+
+          <!-- Reps Block -->
+          <div class="player-block">
+            <div class="player-block-header">
+              ${UI.icon('hash')}
+              <span>Reps</span>
+            </div>
+
+            <div class="reps-display" id="reps-display">0</div>
+
+            <div class="reps-controls">
+              <button class="btn-rep btn-rep-minus" onclick="Player.decrementReps()" aria-label="Minus rep">
+                &minus;
+              </button>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <button class="btn-rep btn-rep-plus" style="width: 48px; height: 32px; font-size: 14px;" onclick="Player.addReps(5)" aria-label="Add 5 reps">+5</button>
+              </div>
+              <button class="btn-rep btn-rep-plus" onclick="Player.incrementReps()" aria-label="Plus rep">
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complete Set button (full width below both blocks) -->
+        <button class="btn btn-success btn-full btn-lg" onclick="Player.completeSet()" style="margin-bottom: var(--space-lg);">
+          ${UI.icon('check')} Complete Set
+        </button>
+
+        <!-- Sets history -->
+        <div class="player-block" id="sets-history-block" ${completedSets.length === 0 ? 'style="display:none;"' : ''}>
+          <div class="player-block-header">
+            ${UI.icon('clipboard')}
+            <span>Completed Sets</span>
+          </div>
+          <div id="sets-history">
+            ${setsHistoryHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSetPills() {
+    if (completedSets.length === 0) return '';
+
+    let html = '<div class="sets-table">';
+    completedSets.forEach((set, i) => {
+      html += `
+        <div class="set-row stagger-item">
+          <span class="set-number">Set ${i + 1}</span>
+          <span class="set-detail">${set.reps} rep</span>
+          <span class="set-detail">${UI.formatTime(set.time)}</span>
+          <button class="btn btn-icon btn-secondary small" onclick="Player.deleteCompletedSet(${i})" style="width:28px;height:28px;margin-left:auto;">
+            ${UI.icon('trash')}
+          </button>
+        </div>
+      `;
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function deleteCompletedSet(index) {
+    completedSets.splice(index, 1);
+    
+    // Save to session
+    if (currentWorkoutId && currentExerciseId) {
+      if (!sessionData[currentWorkoutId]) sessionData[currentWorkoutId] = {};
+      if (!sessionData[currentWorkoutId][currentExerciseId]) {
+        sessionData[currentWorkoutId][currentExerciseId] = { sets: [], totalTime: 0 };
+      }
+      sessionData[currentWorkoutId][currentExerciseId].sets = [...completedSets];
+      sessionData[currentWorkoutId][currentExerciseId].totalTime =
+        completedSets.reduce((sum, s) => sum + s.time, 0);
+    }
+    
+    // Update UI
+    const historyBlock = document.getElementById('sets-history-block');
+    const historyDiv = document.getElementById('sets-history');
+    if (completedSets.length === 0) {
+      if (historyBlock) historyBlock.style.display = 'none';
+      if (historyDiv) historyDiv.innerHTML = '';
+    } else {
+      if (historyDiv) historyDiv.innerHTML = renderSetPills();
+    }
+  }
+
+  // --- Timer functions ---
+  function toggleTimer() {
+    if (timerRunning) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
+  }
+
+  function startTimer() {
+    if (timerRunning) return;
+    if (timerSeconds <= 0) {
+      UI.showToast('Please add time first', 'error');
+      return;
+    }
+    timerRunning = true;
+
+    const display = document.getElementById('timer-display');
+    const btn = document.getElementById('timer-play-btn');
+    if (display) display.classList.add('running');
+    if (btn) btn.innerHTML = `${UI.icon('pause')} Pause`;
+
+    timerInterval = setInterval(() => {
+      if (timerSeconds <= 0) {
+        stopTimer();
+        playBeep();
+        // Auto complete
+        completeSet(true);
+        return;
+      }
+      timerSeconds--;
+      updateTimerDisplay();
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    timerRunning = false;
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    const display = document.getElementById('timer-display');
+    const btn = document.getElementById('timer-play-btn');
+    if (display) display.classList.remove('running');
+    if (btn) btn.innerHTML = `${UI.icon('play')} Play`;
+  }
+
+  function addTimerSeconds(seconds) {
+    if (timerSeconds + seconds < 0) {
+      timerSeconds = 0;
+    } else {
+      timerSeconds += seconds;
+    }
+    // Track initial for the set
+    timerInitialSeconds = timerSeconds;
+    updateTimerDisplay();
+  }
+
+  function playBeep() {
+    const customSound = Storage.getSetting('timerSound');
+    const audioSrc = customSound ? customSound : 'sound.aac';
+    const audio = new Audio(audioSrc);
+    audio.play().catch(e => {
+      console.error('Audio play error:', e);
+      if (!customSound) synthesizeBeep(); // fallback
+    });
+  }
+
+  function synthesizeBeep() {
+    try {
+      const AppContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AppContext();
+      
+      const playTone = (freq, startTime, duration) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      // Friendly "Ding-Ding" chime
+      const now = ctx.currentTime;
+      playTone(523.25, now, 0.8);        // C5
+      playTone(659.25, now + 0.15, 0.8); // E5
+      
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (e) {
+      console.warn('Web Audio API error', e);
+    }
+  }
+
+  function stopTimer() {
+    pauseTimer();
+  }
+
+  function resetTimer() {
+    stopTimer();
+    timerSeconds = 0;
+    updateTimerDisplay();
+  }
+
+  function updateTimerDisplay() {
+    const display = document.getElementById('timer-display');
+    if (display) {
+      display.textContent = UI.formatTime(timerSeconds);
+    }
+  }
+
+  function toggleCollapsible(type) {
+    const el = document.getElementById(`collapsible-${type}-content`);
+    const icon = document.getElementById(`collapsible-${type}-icon`);
+    if (el && icon) {
+      const isHidden = el.classList.contains('hidden');
+      if (isHidden) {
+        el.classList.remove('hidden');
+        icon.innerHTML = UI.icon('chevronUp');
+      } else {
+        el.classList.add('hidden');
+        icon.innerHTML = UI.icon('chevronDown');
+      }
+    }
+  }
+
+  // --- Reps functions ---
+  function incrementReps() {
+    addReps(1);
+  }
+  
+  function addReps(n) {
+    currentReps += n;
+    updateRepsDisplay(true);
+  }
+
+  function decrementReps() {
+    if (currentReps > 0) {
+      currentReps--;
+      updateRepsDisplay(true);
+    }
+  }
+
+  function updateRepsDisplay(animate = false) {
+    const display = document.getElementById('reps-display');
+    if (display) {
+      display.textContent = currentReps;
+      if (animate) {
+        display.classList.remove('pop');
+        void display.offsetWidth;
+        display.classList.add('pop');
+      }
+    }
+  }
+
+  // --- Complete Set: saves reps + time, then auto-resets timer ---
+  function completeSet(auto = false) {
+    if (!auto && currentReps === 0) {
+      UI.showToast('Add at least one rep!', 'error');
+      return;
+    }
+
+    // Save set with reps AND total time intended for the set
+    const setData = { reps: currentReps, time: timerInitialSeconds };
+    completedSets.push(setData);
+
+    // Save to session
+    if (currentWorkoutId && currentExerciseId) {
+      if (!sessionData[currentWorkoutId]) sessionData[currentWorkoutId] = {};
+      if (!sessionData[currentWorkoutId][currentExerciseId]) {
+        sessionData[currentWorkoutId][currentExerciseId] = { sets: [], totalTime: 0 };
+      }
+      sessionData[currentWorkoutId][currentExerciseId].sets = [...completedSets];
+      // Accumulate total reps and time
+      sessionData[currentWorkoutId][currentExerciseId].totalTime =
+        completedSets.reduce((sum, s) => sum + s.time, 0);
+    }
+
+    const durationTxt = UI.formatTime(timerInitialSeconds);
+    const toastMsg = auto 
+      ? `Set ${completedSets.length} auto-completed! (${currentReps} rep, ${durationTxt})`
+      : `Set ${completedSets.length} completed! (${currentReps} rep, ${durationTxt})`;
+    
+    UI.showToast(toastMsg, 'success');
+
+    // Reset reps to 0
+    currentReps = 0;
+    updateRepsDisplay(false);
+
+    // Auto-reset timer for next set
+    stopTimer();
+    timerSeconds = 0;
+    timerInitialSeconds = 0;
+    updateTimerDisplay();
+
+    // Show sets history block if hidden
+    const historyBlock = document.getElementById('sets-history-block');
+    if (historyBlock) historyBlock.style.display = '';
+
+    // Update sets history with animation
+    const historyDiv = document.getElementById('sets-history');
+    if (historyDiv) {
+      historyDiv.innerHTML = renderSetPills();
+      const rows = historyDiv.querySelectorAll('.set-row');
+      if (rows.length > 0) {
+        rows[rows.length - 1].classList.add('new');
+      }
+    }
+  }
+
+  // --- Navigation ---
+  function backToList() {
+    stopTimer();
+    if (currentWorkoutId && currentExerciseId) {
+      if (!sessionData[currentWorkoutId]) sessionData[currentWorkoutId] = {};
+      if (!sessionData[currentWorkoutId][currentExerciseId]) {
+        sessionData[currentWorkoutId][currentExerciseId] = { sets: [], totalTime: 0 };
+      }
+      sessionData[currentWorkoutId][currentExerciseId].totalTime =
+        completedSets.reduce((sum, s) => sum + s.time, 0);
+    }
+    App.goBack(`#play/${currentWorkoutId}`);
+  }
+
+  function hasActiveSessionData() {
+    const wkData = sessionData[currentWorkoutId];
+    return wkData && Object.values(wkData).some(ex => ex.sets.length > 0);
+  }
+
+  function exitWorkout() {
+    stopTimer();
+
+    if (hasActiveSessionData()) {
+      UI.tripleActionModal(
+        'Finish Workout',
+        'You have recorded sets in this session. What would you like to do?',
+        'Save and Exit', 
+        () => {
+          saveSession();
+          App.goBack('#workouts');
+        },
+        'Exit without saving',
+        () => {
+          delete sessionData[currentWorkoutId];
+          UI.showToast('Session discarded', 'info');
+          App.goBack('#workouts');
+        },
+        'Continue current workout',
+        () => {
+          // just close
+        }
+      );
+    } else {
+      App.goBack('#workouts');
+    }
+  }
+
+  function saveSession() {
+    if (!currentWorkoutId || !sessionData[currentWorkoutId]) return;
+
+    const exercises = [];
+    for (const [exId, data] of Object.entries(sessionData[currentWorkoutId])) {
+      if (data.sets.length > 0) {
+        exercises.push({
+          exerciseId: exId,
+          setsCount: data.sets.length,
+          sets: data.sets.map(s => ({ reps: s.reps, time: s.time })),
+          totalReps: data.sets.reduce((sum, s) => sum + s.reps, 0),
+          totalTime: data.sets.reduce((sum, s) => sum + s.time, 0),
+        });
+      }
+    }
+
+    if (exercises.length > 0) {
+      Storage.saveSession({
+        workoutId: currentWorkoutId,
+        exercises,
+        completed: true,
+      });
+      UI.showToast('Session saved!', 'success');
+    }
+
+    delete sessionData[currentWorkoutId];
+  }
+
+  // --- Render: Sessions History ---
+  function renderSessions() {
+    const sessions = Storage.getSessions();
+
+    let html = `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">Sessions History</span>
+        </div>
+      </div>
+      <div class="main-content view-enter">
+        <div class="section-title">Weekly Activity</div>
+        <div class="card stagger-item" style="margin-bottom: var(--space-md); padding-bottom: 0;">
+          <div style="position:relative; width:100%; height:160px; pointer-events:none;">
+            <canvas id="weekly-chart-canvas" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+        <div class="section-title">Sessions List</div>
+    `;
+
+    if (sessions.length === 0) {
+      html += `
+        <div class="empty-state">
+          <div class="empty-state-icon" style="font-size:3rem; opacity:0.3;">${UI.icon('clock')}</div>
+          <div class="empty-state-title">No sessions</div>
+          <div class="empty-state-text">Your completed sessions will appear here</div>
+        </div>
+      `;
+    } else {
+      // Group sessions by workoutId
+      const grouped = {};
+      sessions.forEach(session => {
+        const key = session.workoutId || 'unknown';
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(session);
+      });
+
+      // Render each group
+      for (const [workoutId, wSessions] of Object.entries(grouped)) {
+        if (wSessions.length === 0) continue;
+
+        const workout = Storage.getWorkout(workoutId);
+        const workoutName = workout ? workout.name : 'Deleted Workout';
+        const isExpanded = expandedGroups.has(workoutId);
+
+        // Sort sessions in this group by date descending
+        wSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        html += `
+          <div class="card stagger-item" style="margin-bottom: var(--space-md);">
+            <div class="card-row flex-between" style="cursor: pointer; padding-bottom: 0;" onclick="Player.toggleSessionGroup('${workoutId}')">
+              <div style="flex:1;">
+                <div class="card-title">${workoutName}</div>
+                <div class="text-small text-secondary">${wSessions.length} session${wSessions.length === 1 ? '' : 's'} grouped</div>
+              </div>
+              <div id="session-icon-${workoutId}">${UI.icon(isExpanded ? 'chevronUp' : 'chevronDown')}</div>
+            </div>
+            
+            <div id="session-group-${workoutId}" class="${isExpanded ? '' : 'hidden'}" style="margin-top: var(--space-md); border-top: 1px solid var(--glass-border); padding-top: var(--space-md);">
+              <div class="flex-between mb-md">
+                <span class="text-secondary text-small" style="font-weight: 600;">Sessions List</span>
+                <button class="btn btn-danger small" onclick="Player.confirmDeleteSessionsGroup('${workoutId}'); event.stopPropagation();">
+                  ${UI.icon('trash')} Delete All
+                </button>
+              </div>
+        `;
+
+        wSessions.forEach((session, idx) => {
+          const date = new Date(session.date);
+          const dateStr = date.toLocaleDateString('en-US', {
+            day: 'numeric', month: 'long', year: 'numeric'
+          });
+          const timeStr = date.toLocaleTimeString('en-US', {
+            hour: '2-digit', minute: '2-digit'
+          });
+
+          // Calculate totals
+          const totalSets = session.exercises.reduce((sum, ex) => sum + (ex.setsCount || ex.sets?.length || 0), 0);
+          const totalReps = session.exercises.reduce((sum, ex) => sum + (ex.totalReps || 0), 0);
+          const totalTime = session.exercises.reduce((sum, ex) => sum + (ex.totalTime || 0), 0);
+
+          html += `
+            <div style="background: rgba(0,0,0,0.2); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-md);">
+              <div class="flex-between mb-md">
+                <div>
+                  <div class="text-small text-secondary">${dateStr} at ${timeStr}</div>
+                </div>
+                <button class="btn btn-icon btn-secondary small" onclick="Player.confirmDeleteSession('${session.id}')" title="Delete Session">
+                  ${UI.icon('trash')}
+                </button>
+              </div>
+              <div class="session-summary">
+                <div class="session-stat">
+                  <span class="session-stat-value">${totalSets}</span>
+                  <span class="session-stat-label">Sets</span>
+                </div>
+                <div class="session-stat">
+                  <span class="session-stat-value">${totalReps}</span>
+                  <span class="session-stat-label">Total Reps</span>
+                </div>
+                <div class="session-stat">
+                  <span class="session-stat-value">${UI.formatTime(totalTime)}</span>
+                  <span class="session-stat-label">Time</span>
+                </div>
+              </div>
+          `;
+
+          // Exercise details
+          html += '<div class="session-exercises">';
+          session.exercises.forEach(exData => {
+            const exercise = Storage.getExercise(exData.exerciseId);
+            const exName = exercise ? exercise.name : 'Deleted Exercise';
+            const sets = exData.sets || [];
+
+            html += `
+              <div class="session-exercise-item">
+                <div class="session-exercise-name">${exName}</div>
+                <div class="set-pills">
+            `;
+
+            if (sets.length > 0) {
+              sets.forEach((s, si) => {
+                const reps = typeof s === 'object' ? s.reps : s;
+                const time = typeof s === 'object' ? s.time : 0;
+                html += `<span class="set-pill">Set ${si + 1}: ${reps} rep${time > 0 ? ' - ' + UI.formatTime(time) : ''}</span>`;
+              });
+            } else if (exData.totalReps) {
+              html += `<span class="set-pill">${exData.setsCount || '?'} sets, ${exData.totalReps} total reps</span>`;
+            }
+
+            html += `
+                </div>
+              </div>
+            `;
+          });
+          html += '</div></div>';
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function toggleSessionGroup(workoutId) {
+    const el = document.getElementById(`session-group-${workoutId}`);
+    const icon = document.getElementById(`session-icon-${workoutId}`);
+    if (el) {
+      el.classList.toggle('hidden');
+      if (el.classList.contains('hidden')) {
+        expandedGroups.delete(workoutId);
+        icon.innerHTML = UI.icon('chevronDown');
+      } else {
+        expandedGroups.add(workoutId);
+        icon.innerHTML = UI.icon('chevronUp');
+      }
+    }
+  }
+
+  function confirmDeleteSessionsGroup(workoutId) {
+    const workout = Storage.getWorkout(workoutId);
+    const wName = workout ? workout.name : 'this workout';
+    UI.confirmModal('Delete Group', `Are you sure you want to delete ALL historical sessions for "<strong>${wName}</strong>"?<br>Data will be lost forever.`, () => {
+      Storage.deleteSessionsByWorkout(workoutId);
+      UI.showToast('All sessions deleted', 'success');
+      App.navigate('#sessions');
+    });
+  }
+
+  function confirmDeleteSession(sessionId) {
+    UI.confirmModal('Delete Session', 'Are you sure you want to delete this historical session? Data will be lost.', () => {
+      Storage.deleteSession(sessionId);
+      UI.showToast('Session deleted', 'success');
+      App.navigate('#sessions');
+    });
+  }
+
+  return {
+    renderExerciseSelection,
+    renderPlayer,
+    renderSessions,
+    confirmDeleteSession,
+    confirmDeleteSessionsGroup,
+    toggleSessionGroup,
+    toggleTimer,
+    addTimerSeconds,
+    playBeep,
+    stopTimer,
+    resetTimer,
+    addReps,
+    incrementReps,
+    decrementReps,
+    completeSet,
+    deleteCompletedSet,
+    backToList,
+    exitWorkout,
+    hasActiveSessionData,
+    toggleCollapsible,
+  };
+})();
+
+
+
+
+// --- app.js ---
+/* ============================================
+   PhysioTrainer â€” App Router & Init
+   SPA hash-based routing
+   ============================================ */
+
+const App = (() => {
+
+  const appContainer = document.getElementById('app-container');
+
+  function navigate(hash) {
+    if (window.location.hash === hash) {
+      route();
+    } else {
+      window.location.hash = hash;
+    }
+  }
+
+  function goBack(fallbackHash = '#home') {
+    const prev = window.location.hash;
+    window.history.back();
+    setTimeout(() => {
+      if (window.location.hash === prev) {
+         window.location.hash = fallbackHash;
+      }
+    }, 50);
+  }
+
+  let isRoutingEnabled = true;
+
+  function route() {
+    if (!isRoutingEnabled) return;
+
+    const hash = window.location.hash || '#home';
+    const prevHash = document.body.dataset.currentHash || '#home';
+
+    // Intercept hardware/browser back button if leaving an active workout
+    const isCurrentlyInWorkout = prevHash.startsWith('#play/');
+    const isGoingToLeaveWorkout = !hash.startsWith('#play/');
+
+    if (isCurrentlyInWorkout && isGoingToLeaveWorkout && Player.hasActiveSessionData()) {
+      isRoutingEnabled = false;
+      // Revert the hash
+      window.history.pushState(null, '', prevHash);
+      isRoutingEnabled = true;
+      // Trigger the exit prompt
+      Player.exitWorkout();
+      return;
+    }
+
+    // Save the normal hash state
+    document.body.dataset.currentHash = hash;
+
+    const parts = hash.replace('#', '').split('/');
+    const page = parts[0];
+    const param1 = parts[1] || null;
+    const param2 = parts[2] || null;
+
+    let content = '';
+    let activeNav = '';
+
+    switch (page) {
+      case 'home':
+        content = renderHome();
+        activeNav = 'home';
+        break;
+
+      case 'exercises':
+        content = Exercises.renderList();
+        activeNav = 'exercises';
+        break;
+
+      case 'exercise':
+        if (param1 === 'new') {
+          Exercises.initFormMedia(null);
+          content = Exercises.renderForm(null);
+        } else {
+          Exercises.initFormMedia(param1);
+          content = Exercises.renderForm(param1);
+        }
+        activeNav = 'exercises';
+        break;
+
+      case 'workouts':
+        content = Workouts.renderList();
+        activeNav = 'workouts';
+        break;
+
+      case 'workout':
+        content = Workouts.renderForm(param1 === 'new' ? null : param1);
+        activeNav = 'workouts';
+        break;
+
+      case 'play':
+        if (param2) {
+          content = Player.renderPlayer(param1, param2);
+        } else {
+          content = Player.renderExerciseSelection(param1);
+        }
+        activeNav = 'workouts';
+        break;
+
+      case 'sessions':
+        content = Player.renderSessions();
+        activeNav = 'sessions';
+        break;
+
+      case 'settings':
+        content = renderSettings();
+        activeNav = 'settings';
+        break;
+
+      default:
+        content = renderHome();
+        activeNav = 'home';
+    }
+
+    appContainer.innerHTML = content + renderBottomNav(activeNav);
+
+    if (activeNav === 'sessions') {
+      setTimeout(renderWeeklyChart, 10);
+      window.addEventListener('resize', renderWeeklyChart);
+    } else {
+      window.removeEventListener('resize', renderWeeklyChart);
+    }
+  }
+
+  // --- Home / Dashboard ---
+  function renderHome() {
+    const exerciseCount = Storage.getExercises().length;
+    const workoutCount = Storage.getWorkouts().length;
+    const sessionCount = Storage.getSessions().length;
+    let greeting = UI.getGreeting();
+    // Since UI.getGreeting might still return Italian if not translated yet, use a quick fallback
+    
+    return `
+      <div class="header">
+        <div class="header-left">
+          <span class="header-title" style="font-size:1.25rem;">PhysioTrainer</span>
+        </div>
+      </div>
+      <div class="main-content view-enter">
+        <div class="welcome-section">
+          <div class="welcome-greeting">${greeting}!</div>
+          <div class="welcome-subtitle">Ready for today's session?</div>
+        </div>
+
+        <div class="section-title">Your Sections</div>
+
+        <div class="card stagger-item" style="margin-bottom: var(--space-md);" onclick="App.navigate('#workouts')">
+          <div class="card-row">
+            <div class="card-icon">${UI.icon('clipboard')}</div>
+            <div class="card-body">
+              <div class="card-title">My Workouts</div>
+              <div class="card-subtitle">${workoutCount} workout${workoutCount === 1 ? '' : 's'} created</div>
+            </div>
+            <div class="card-arrow">${UI.icon('arrowRight')}</div>
+          </div>
+        </div>
+
+        <div class="card stagger-item" style="margin-bottom: var(--space-md);" onclick="App.navigate('#exercises')">
+          <div class="card-row">
+            <div class="card-icon">${UI.icon('activity')}</div>
+            <div class="card-body">
+              <div class="card-title">My Exercises</div>
+              <div class="card-subtitle">${exerciseCount} exercise${exerciseCount === 1 ? '' : 's'} created</div>
+            </div>
+            <div class="card-arrow">${UI.icon('arrowRight')}</div>
+          </div>
+        </div>
+
+        <div class="card stagger-item" style="margin-bottom: var(--space-md);" onclick="App.navigate('#sessions')">
+          <div class="card-row">
+            <div class="card-icon">${UI.icon('clock')}</div>
+            <div class="card-body">
+              <div class="card-title">Sessions History</div>
+              <div class="card-subtitle">${sessionCount} session${sessionCount === 1 ? '' : 's'} recorded</div>
+            </div>
+            <div class="card-arrow">${UI.icon('arrowRight')}</div>
+          </div>
+        </div>
+
+      </div>
+    `;
+  }
+
+  // --- Chart Logic ---
+  function renderWeeklyChart() {
+    const canvas = document.getElementById('weekly-chart-canvas');
+    if (!canvas) return;
+    
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    
+    const W = rect.width;
+    const H = rect.height;
+    ctx.clearRect(0, 0, W, H);
+    
+    // Get last 7 days stats
+    const sessions = Storage.getSessions();
+    const days = 7;
+    const data = [];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const isToday = i === 0;
+      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+      
+      const startOfDay = d.getTime();
+      const endOfDay = startOfDay + 24*60*60*1000;
+      
+      let workoutsDone = 0;
+      sessions.forEach(s => {
+        const sTime = new Date(s.date).getTime();
+        if (sTime >= startOfDay && sTime < endOfDay) {
+          workoutsDone++;
+        }
+      });
+      data.push({ label: dayLabel, count: workoutsDone, isToday });
+    }
+    
+    const maxCount = Math.max(1, ...data.map(d => d.count));
+    const maxVal = Math.ceil(maxCount / 2) * 2; 
+    
+    const padL = 20, padR = 8, padT = 16, padB = 24;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+    const gap = chartW / data.length;
+    const barW = Math.min(gap * 0.6, 24);
+    
+    // Y Axis lines
+    ctx.fillStyle = '#6b6b80';
+    ctx.font = '500 10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    
+    for (let i = 0; i <= 2; i++) {
+        const yVal = (maxVal / 2) * i;
+        if (!Number.isInteger(yVal)) continue;
+        const yPos = padT + chartH - (chartH * (yVal / maxVal));
+        ctx.fillText(yVal, padL - 6, yPos + 3);
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padL, yPos);
+        ctx.lineTo(W - padR, yPos);
+        ctx.stroke();
+    }
+    
+    // Bars
+    data.forEach((d, idx) => {
+        const x = padL + gap * idx + (gap - barW) / 2;
+        const barH = d.count > 0 ? Math.max((chartH * d.count / maxVal), 4) : 0;
+        const y = padT + chartH - barH;
+        
+        if (barH > 0) {
+            ctx.fillStyle = d.count > 0 ? 'rgba(56, 189, 248, 0.8)' : 'rgba(56, 189, 248, 0.3)';
+            const r = Math.min(barW / 2, 6);
+            ctx.beginPath();
+            ctx.moveTo(x, y + r);
+            ctx.arcTo(x, y, x + r, y, r);
+            ctx.arcTo(x + barW, y, x + barW, y + r, r);
+            ctx.lineTo(x + barW, padT + chartH);
+            ctx.lineTo(x, padT + chartH);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        ctx.fillStyle = d.isToday ? '#38bdf8' : '#6b6b80';
+        ctx.font = (d.isToday ? '700' : '500') + ' 10px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(d.label, x + barW / 2, H - 4);
+    });
+  }
+
+  // --- Settings ---
+  function renderSettings() {
+    const usage = Storage.getStorageUsage();
+
+    return `
+      <div class="header">
+        <div class="header-left">
+          <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
+          <span class="header-title">Settings</span>
+        </div>
+      </div>
+      <div class="main-content view-enter">
+      
+
+        <div class="section-title">Notifications</div>
+        <div class="card" style="cursor:default; margin-bottom: var(--space-lg);">
+          <div class="card-row" style="margin-bottom: var(--space-md); align-items: center;">
+            <div class="card-icon gradient" style="width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--accent-gradient); color:white;">
+              ${UI.icon('clock')}
+            </div>
+            <div class="card-body" style="margin-left:var(--space-md);">
+              <div class="card-title">Timer Sound</div>
+              <div class="card-subtitle" style="font-size:0.8rem; color:var(--text-secondary);">
+                ${Storage.getSetting('timerSound') ? 'Custom audio active' : 'Default beep active'}
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex gap-sm" style="flex-wrap: wrap;">
+            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="Player.playBeep()">
+              ${UI.icon('play')} Test
+            </button>
+            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="document.getElementById('timer-sound-input').click()">
+              ${UI.icon('upload')} Upload
+            </button>
+            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="Storage.saveSetting('timerSound', null); App.navigate('#settings'); UI.showToast('Sound reset to default', 'success');">
+              ${UI.icon('refresh')} Reset
+            </button>
+          </div>
+          <p class="text-caption" style="margin-top:var(--space-md); color:var(--text-muted); text-align:center;">
+            Supported formats: MP3, WAV, OGG (Max 2MB)
+          </p>
+          <input type="file" id="timer-sound-input" class="file-input-hidden" accept="audio/*" onchange="App.handleTimerSoundUpload(event)">
+        </div>
+
+        <div class="section-title">Storage</div>
+        <div class="card" style="cursor:default; margin-bottom: var(--space-lg);">
+          <div style="margin-bottom: var(--space-md);">
+            <div class="flex-between mb-md">
+              <span class="text-secondary text-small">Space used</span>
+              <span class="text-small">${usage.usedMB} MB / ${usage.limitMB} MB</span>
+            </div>
+            <div style="height:8px; background: var(--bg-elevated); border-radius: var(--radius-full); overflow:hidden;">
+              <div style="height:100%; width:${Math.min(usage.percentUsed, 100)}%; background: var(--accent-gradient); border-radius: var(--radius-full); transition: var(--transition-slow);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">Data</div>
+        <div class="card" style="cursor:default; margin-bottom: var(--space-md);">
+          <div class="card-row" style="margin-bottom: var(--space-ld); align-items: center;">
+            <div class="card-icon gradient" style="width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--accent-gradient); color:white;">
+              ${UI.icon('download')}
+            </div>
+            <div class="card-body" style="margin-left:var(--space-md);">
+              <div class="card-title">Export / Import</div>
+              <div class="card-subtitle" style="font-size:0.8rem; color:var(--text-secondary);">
+                Backup your data to a JSON file
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-md" style="margin-top: var(--space-md);">
+            <button class="btn btn-secondary" style="flex:1;" onclick="App.exportData()">
+              ${UI.icon('download')} Export
+            </button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('import-input').click()">
+              ${UI.icon('upload')} Import
+            </button>
+          </div>
+          <input type="file" id="import-input" class="file-input-hidden" accept=".json" onchange="App.importData(event)">
+        </div>
+
+        <div class="card" style="cursor:default;">
+          <div class="card-title" style="margin-bottom: var(--space-md); color: var(--danger);">Danger Zone</div>
+          <button class="btn btn-danger btn-full" onclick="App.confirmClearData()">
+            ${UI.icon('trash')} Clear all data
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Export/Import ---
+  function exportData() {
+    const data = Storage.exportData();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `physiotrainer_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    UI.showToast('Data exported!', 'success');
+  }
+
+  function handleTimerSoundUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      UI.showToast('Audio file too large (max 2MB)', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      Storage.saveSetting('timerSound', e.target.result);
+      UI.showToast('Timer sound uploaded successfully!', 'success');
+      App.navigate('#settings'); // Re-render settings to show new status
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const success = Storage.importData(e.target.result);
+      if (success) {
+        UI.showToast('Data imported successfully!', 'success');
+        route();
+      } else {
+        UI.showToast('Error importing data', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function confirmClearData() {
+    UI.confirmModal('Clear All Data',
+      'This action will delete <strong>all</strong> exercises, workouts, and sessions.<br><br>This action cannot be undone!',
+      () => {
+        localStorage.removeItem('pt_exercises');
+        localStorage.removeItem('pt_workouts');
+        localStorage.removeItem('pt_sessions');
+        localStorage.removeItem('pt_settings');
+        UI.showToast('All data cleared', 'success');
+        route();
+      }
+    );
+  }
+
+
+
+  // --- Bottom Navigation ---
+  function renderBottomNav(active) {
+    const items = [
+      { id: 'home', icon: 'home', label: 'Home', hash: '#home' },
+      { id: 'exercises', icon: 'activity', label: 'Exercises', hash: '#exercises' },
+      { id: 'workouts', icon: 'clipboard', label: 'Workouts', hash: '#workouts' },
+      { id: 'sessions', icon: 'clock', label: 'Sessions', hash: '#sessions' },
+      { id: 'settings', icon: 'settings', label: 'Settings', hash: '#settings' },
+    ];
+
+    let html = '<nav class="bottom-nav">';
+    items.forEach(item => {
+      const isActive = item.id === active ? 'active' : '';
+      html += `
+        <button class="nav-item ${isActive}" onclick="App.navigate('${item.hash}')" aria-label="${item.label}">
+          ${UI.icon(item.icon)}
+          <span>${item.label}</span>
+        </button>
+      `;
+    });
+    html += '</nav>';
+    return html;
+  }
+
+  // --- Init ---
+  function init() {
+    if (!window.location.hash || window.location.hash === '#home') {
+      window.history.replaceState(null, '', '#home');
+    } else {
+      const currentHash = window.location.hash;
+      window.history.replaceState(null, '', '#home');
+      window.history.pushState(null, '', currentHash);
+    }
+    window.addEventListener('hashchange', route);
+    route();
+  }
+
+  return {
+    navigate,
+    goBack,
+    init,
+    exportData,
+    handleTimerSoundUpload,
+    importData,
+    confirmClearData,
+
+  };
+})();
+
+// Boot
+document.addEventListener('DOMContentLoaded', App.init);
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+</script>
+</body>
+</html>
+
+
+
+
+
+
