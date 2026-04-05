@@ -1827,6 +1827,17 @@ function icon(name) {
     return 'Good evening';
   }
 
+  // --- Workout Colors ---
+  function getWorkoutColor(workoutId) {
+    const workouts = Storage.getWorkouts();
+    let idx = workouts.findIndex(w => w.id === workoutId);
+    if (idx === -1) return '#6b6b80'; // fallback for deleted workouts
+    const WORKOUT_COLORS = [
+      '#38bdf8', '#10b981', '#f43f5e', '#8b5cf6', '#f59e0b', '#14b8a6', '#ec4899', '#84cc16'
+    ];
+    return WORKOUT_COLORS[idx % WORKOUT_COLORS.length];
+  }
+
   return {
     icon,
     showToast,
@@ -1838,6 +1849,7 @@ function icon(name) {
     readFileAsDataUrl,
     formatTime,
     getGreeting,
+    getWorkoutColor,
     tripleActionModal,
   };
 })();
@@ -3450,8 +3462,10 @@ const Player = (() => {
         // Sort sessions in this group by date descending
         wSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+        const wColor = UI.getWorkoutColor(workoutId);
+
         html += `
-          <div class="card stagger-item" style="margin-bottom: var(--space-md);">
+          <div class="card stagger-item" style="margin-bottom: var(--space-md); border-left: 4px solid ${wColor};">
             <div class="card-row flex-between" style="cursor: pointer; padding-bottom: 0;" onclick="Player.toggleSessionGroup('${workoutId}')">
               <div style="flex:1;">
                 <div class="card-title">${workoutName}</div>
@@ -3829,14 +3843,14 @@ const App = (() => {
       const startOfDay = d.getTime();
       const endOfDay = startOfDay + 24*60*60*1000;
       
-      let workoutsDone = 0;
+      let dayWorkouts = [];
       sessions.forEach(s => {
         const sTime = new Date(s.date).getTime();
         if (sTime >= startOfDay && sTime < endOfDay) {
-          workoutsDone++;
+          dayWorkouts.push(s.workoutId || 'unknown');
         }
       });
-      data.push({ label: dayLabel, count: workoutsDone, isToday });
+      data.push({ label: dayLabel, count: dayWorkouts.length, workouts: dayWorkouts, isToday });
     }
     
     const maxCount = Math.max(1, ...data.map(d => d.count));
@@ -3870,20 +3884,37 @@ const App = (() => {
     // Bars
     data.forEach((d, idx) => {
         const x = padL + gap * idx + (gap - barW) / 2;
-        const barH = d.count > 0 ? Math.max((chartH * d.count / maxVal), 4) : 0;
-        const y = padT + chartH - barH;
         
-        if (barH > 0) {
-            ctx.fillStyle = d.count > 0 ? 'rgba(56, 189, 248, 0.8)' : 'rgba(56, 189, 248, 0.3)';
-            const r = Math.min(barW / 2, 6);
-            ctx.beginPath();
-            ctx.moveTo(x, y + r);
-            ctx.arcTo(x, y, x + r, y, r);
-            ctx.arcTo(x + barW, y, x + barW, y + r, r);
-            ctx.lineTo(x + barW, padT + chartH);
-            ctx.lineTo(x, padT + chartH);
-            ctx.closePath();
-            ctx.fill();
+        if (d.count > 0) {
+            let currentY = padT + chartH;
+            const segmentH = chartH / maxVal;
+            
+            d.workouts.forEach((wId, wIdx) => {
+                const color = UI.getWorkoutColor(wId);
+                const h = Math.max(segmentH, 4);
+                const y = currentY - h;
+                
+                ctx.fillStyle = color;
+                
+                const isTop = wIdx === d.workouts.length - 1;
+                const r = isTop ? Math.min(barW / 2, 6) : 0;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y + r);
+                ctx.arcTo(x, y, x + r, y, r);
+                ctx.arcTo(x + barW, y, x + barW, y + r, r);
+                ctx.lineTo(x + barW, currentY);
+                ctx.lineTo(x, currentY);
+                ctx.closePath();
+                ctx.fill();
+                
+                if (wIdx > 0) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(x, currentY - 1, barW, 2);
+                }
+                
+                currentY = y;
+            });
         }
         
         ctx.fillStyle = d.isToday ? '#38bdf8' : '#6b6b80';
