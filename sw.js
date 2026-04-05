@@ -1,4 +1,4 @@
-const CACHE_NAME = 'physiotrainer-v3';
+const CACHE_NAME = 'physiotrainer-v4';
 const ASSETS = [
     './',
     './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
     './sound.aac'
 ];
 
+// Install event: cache initial assets
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
@@ -15,31 +16,29 @@ self.addEventListener('install', event => {
     );
 });
 
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-        .then(response => {
-            return response || fetch(event.request);
-        }).catch(() => {
-            if (event.request.mode === 'navigate') {
-                return caches.match('./index.html');
-            }
-        })
-    );
-});
-
+// Activate event: cleanup old caches
 self.addEventListener('activate', event => {
-    event.waitUntil(clients.claim());
-    const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                    if (cacheName !== CACHE_NAME) {
                         return caches.delete(cacheName);
                     }
                 })
             );
+        }).then(() => self.clients.claim())
+    );
+});
+
+// Fetch event: Network-First strategy
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        fetch(event.request).catch(() => {
+            if (event.request.mode === 'navigate') {
+                return caches.match('./index.html');
+            }
+            return caches.match(event.request);
         })
     );
 });

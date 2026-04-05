@@ -1858,7 +1858,7 @@ function icon(name) {
 // --- storage.js ---
 /* ============================================
    PhysioTrainer â€” Storage Module
-   Gestione persistenza dati via localStorage
+   Gestione persistenza dati via IndexedDB (fallback localStorage)
    ============================================ */
 
 const Storage = (() => {
@@ -1869,28 +1869,126 @@ const Storage = (() => {
     settings: 'pt_settings',
   };
 
+  // --- IndexedDB Setup ---
+  const IDB_NAME = 'PhysioTrainerLocalDB';
+  const IDB_VERSION = 1;
+  const IDB_STORE = 'appData';
+
+  let _db = null;
+  let inMemoryData = {
+    exercises: [],
+    workouts: [],
+    sessions: [],
+    settings: {}
+  };
+
+  function openDatabase() {
+    return new Promise(function (resolve, reject) {
+      if (_db) { resolve(_db); return; }
+      const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+      request.onupgradeneeded = function (e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      request.onsuccess = function (e) {
+        _db = e.target.result;
+        resolve(_db);
+      };
+      request.onerror = function (e) {
+        console.warn('IndexedDB open error:', e.target.error);
+        reject(e.target.error);
+      };
+    });
+  }
+
+  function readFromIDB() {
+    return openDatabase().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const store = tx.objectStore(IDB_STORE);
+        const request = store.get('physiodata');
+        request.onsuccess = function () { resolve(request.result || null); };
+        request.onerror = function () { reject(request.error); };
+      });
+    });
+  }
+
+  function writeToIDB(data) {
+    return openDatabase().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        const store = tx.objectStore(IDB_STORE);
+        const request = store.put(data, 'physiodata');
+        request.onsuccess = function () { resolve(); };
+        request.onerror = function () { reject(request.error); };
+      });
+    });
+  }
+
+  function loadData() {
+    return readFromIDB().then(function(data) {
+      if (data && data.exercises) {
+        inMemoryData = data;
+      } else {
+        // Legacy migration
+        try {
+          if (localStorage.getItem(KEYS.exercises)) {
+            inMemoryData.exercises = JSON.parse(localStorage.getItem(KEYS.exercises) || '[]');
+            inMemoryData.workouts = JSON.parse(localStorage.getItem(KEYS.workouts) || '[]');
+            inMemoryData.sessions = JSON.parse(localStorage.getItem(KEYS.sessions) || '[]');
+            inMemoryData.settings = JSON.parse(localStorage.getItem(KEYS.settings) || '{}');
+            
+            writeToIDB(inMemoryData).then(function() {
+              localStorage.removeItem(KEYS.exercises);
+              localStorage.removeItem(KEYS.workouts);
+              localStorage.removeItem(KEYS.sessions);
+              localStorage.removeItem(KEYS.settings);
+            });
+          }
+        } catch(e) { console.warn(e); }
+      }
+    }).catch(function(err) {
+      console.warn('IDB load failed, fallback to localStorage', err);
+      try {
+        if (localStorage.getItem(KEYS.exercises)) {
+            inMemoryData.exercises = JSON.parse(localStorage.getItem(KEYS.exercises) || '[]');
+            inMemoryData.workouts = JSON.parse(localStorage.getItem(KEYS.workouts) || '[]');
+            inMemoryData.sessions = JSON.parse(localStorage.getItem(KEYS.sessions) || '[]');
+            inMemoryData.settings = JSON.parse(localStorage.getItem(KEYS.settings) || '{}');
+        }
+      } catch(e) {}
+    });
+  }
+
+  function clearAllData() {
+    inMemoryData = { exercises: [], workouts: [], sessions: [], settings: {} };
+    writeToIDB(inMemoryData).catch(function() {
+      localStorage.removeItem(KEYS.exercises);
+      localStorage.removeItem(KEYS.workouts);
+      localStorage.removeItem(KEYS.sessions);
+      localStorage.removeItem(KEYS.settings);
+    });
+  }
+
   // --- Helpers ---
   function _get(key) {
-    try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : [];
-    } catch (e) {
-      console.error(`Storage read error for ${key}:`, e);
-      return [];
-    }
+    if (key === KEYS.exercises) return inMemoryData.exercises;
+    if (key === KEYS.workouts) return inMemoryData.workouts;
+    if (key === KEYS.sessions) return inMemoryData.sessions;
+    return [];
   }
 
   function _set(key, value) {
-    try {
+    if (key === KEYS.exercises) inMemoryData.exercises = value;
+    else if (key === KEYS.workouts) inMemoryData.workouts = value;
+    else if (key === KEYS.sessions) inMemoryData.sessions = value;
+    
+    writeToIDB(inMemoryData).catch(function() {
       localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (e) {
-      console.error(`Storage write error for ${key}:`, e);
-      if (e.name === 'QuotaExceededError') {
-        UI.showToast('Storage space exceeded! Please delete some data.', 'error');
-      }
-      return false;
-    }
+    });
+    return true;
   }
 
   function _generateId(prefix) {
@@ -2054,12 +2152,7 @@ const Storage = (() => {
 
   // --- Settings ---
   function getSettings() {
-    try {
-      const data = localStorage.getItem(KEYS.settings);
-      return data ? JSON.parse(data) : {};
-    } catch (e) {
-      return {};
-    }
+    return inMemoryData.settings || {};
   }
 
   function getSetting(key) {
@@ -2073,23 +2166,21 @@ const Storage = (() => {
     } else {
       settings[key] = value;
     }
-    _set(KEYS.settings, settings);
+    inMemoryData.settings = settings;
+    writeToIDB(inMemoryData).catch(function() {
+      localStorage.setItem(KEYS.settings, JSON.stringify(settings));
+    });
     return true;
   }
 
   // --- Utility ---
   function getStorageUsage() {
-    let total = 0;
-    for (let key in localStorage) {
-      if (localStorage.hasOwnProperty(key)) {
-        total += localStorage.getItem(key).length * 2; // UTF-16 = 2 bytes per char
-      }
-    }
+    let total = JSON.stringify(inMemoryData).length * 2;
     return {
       usedBytes: total,
       usedMB: (total / (1024 * 1024)).toFixed(2),
-      limitMB: 5,
-      percentUsed: Math.round((total / (5 * 1024 * 1024)) * 100),
+      limitMB: 50,
+      percentUsed: Math.round((total / (50 * 1024 * 1024)) * 100),
     };
   }
 
@@ -2116,6 +2207,8 @@ const Storage = (() => {
   }
 
   return {
+    loadData,
+    clearAllData,
     getExercises,
     getExercise,
     saveExercise,
@@ -4068,10 +4161,7 @@ const App = (() => {
     UI.confirmModal('Clear All Data',
       'This action will delete <strong>all</strong> exercises, workouts, and sessions.<br><br>This action cannot be undone!',
       () => {
-        localStorage.removeItem('pt_exercises');
-        localStorage.removeItem('pt_workouts');
-        localStorage.removeItem('pt_sessions');
-        localStorage.removeItem('pt_settings');
+        Storage.clearAllData();
         UI.showToast('All data cleared', 'success');
         route();
       }
@@ -4106,6 +4196,12 @@ const App = (() => {
 
   // --- Init ---
   function init() {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(granted => {
+        if (granted) console.log("Storage is persistent.");
+      });
+    }
+
     if (!window.location.hash || window.location.hash === '#home') {
       window.history.replaceState(null, '', '#home');
     } else {
@@ -4130,11 +4226,33 @@ const App = (() => {
 })();
 
 // Boot
-document.addEventListener('DOMContentLoaded', App.init);
+document.addEventListener('DOMContentLoaded', () => {
+  Storage.loadData().then(() => {
+    App.init();
+  });
+});
 </script>
 
 <script>
-  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+  if ('serviceWorker' in navigator) {
+    var hadController = !!navigator.serviceWorker.controller;
+
+    navigator.serviceWorker.register('sw.js').then(function(registration) {
+      registration.update();
+      setInterval(function() { registration.update(); }, 600000);
+    }).catch(function(err) {
+      console.warn('SW registration failed:', err);
+    });
+
+    if (hadController) {
+      var refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+    }
+  }
 </script>
 </body>
 </html>

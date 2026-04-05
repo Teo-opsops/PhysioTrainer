@@ -6,7 +6,7 @@ Questo file manterrà traccia delle specifiche e verrà aggiornato iterativament
 
 ## 2. Architettura e Struttura Informatica
 - **Struttura**: Single-file. Tutto il codice (HTML, CSS, JS) è ora inlined all'interno di `index.html`, seguendo il modello dell'app **GluGlu**.
-- **Persistenza**: Utilizza `localStorage` per salvare in tempo reale esercizi, allenamenti e progressi. 
+- **Persistenza**: Utilizza `IndexedDB` (con fallback su `localStorage`) per salvare in tempo reale esercizi, allenamenti e progressi al sicuro dallo svuotamento cache del browser.
 
 ## 3. Stile Visivo e Design
 - **Stile**: Minimal, pulito e moderno.
@@ -32,3 +32,4 @@ Questo file manterrà traccia delle specifiche e verrà aggiornato iterativament
 - **Workout UX & Prevenzione Perdita Dati**: Riorganizzato il layout dei box nella sezione allenamenti sistemando il titolo nella parte alta e i pulsanti (Start, Modifica, Elimina) raggruppati in basso. Rimosso ogni tasto di "Refresh" che generava confusione, impedendo il "Pull-to-refresh" scivolando in basso da mobile tramite regole CSS (`overscroll-behavior-y: none;`). Aggiunto infine il supporto intercettivo nativo per il tasto "indietro" (hardware back button e gesture) che, se premuto durante un allenamento in corso, disattiva il timer e mostra un popup che chiede all'utente se intende salvare i progressi o uscire, come già avviene sull'app OnPoint.
 - **Rifiniture Settings**: Aggiunta la visualizzazione coerente in stile "card icon" per la sezione Esporta/Importa Dati nelle impostazioni, uniformandola al resto del design.
 - **Visualizzazione Colori Storico**: Assegnato un colore identificativo a ciascun gruppo di workout completato nella schermata dello storico (Sessions) che viene poi ripreso per visualizzare il grafico in alto. I vari allenamenti della stessa giornata vengono rappresentati come blocchi sovrapposti con i relativi colori identificativi (stacked bar chart), permettendo all'utente di capire a colpo d'occhio quale allenamento è stato fatto in una specifica data.
+- **Migrazione a IndexedDB**: Riscritto interamente il modulo `Storage` per utilizzare IndexedDB asincrono con caching in memoria. Questa modifica allinea PhysioTrainer alla metodologia robusta impiegata nelle app Notes e On Point, tutelando i salvataggi in caso di cancellazione cache del browser e implementando la migrazione trasparente e automatica dalla vecchia architettura localStorage.
