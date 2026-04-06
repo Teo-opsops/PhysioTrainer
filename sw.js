@@ -1,4 +1,4 @@
-const CACHE_NAME = 'physiotrainer-v4';
+const CACHE_NAME = 'physiotrainer-v5';
 const ASSETS = [
     './',
     './index.html',
@@ -31,14 +31,24 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch event: Network-First strategy
+// Fetch event: Network-First strategy with dynamic cache update
 self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET') return;
+
     event.respondWith(
-        fetch(event.request).catch(() => {
-            if (event.request.mode === 'navigate') {
-                return caches.match('./index.html');
-            }
-            return caches.match(event.request);
-        })
+        fetch(event.request, { cache: 'no-store' })
+            .then(response => {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(event.request, responseClone);
+                });
+                return response;
+            })
+            .catch(() => {
+                if (event.request.mode === 'navigate') {
+                    return caches.match('./index.html');
+                }
+                return caches.match(event.request);
+            })
     );
 });

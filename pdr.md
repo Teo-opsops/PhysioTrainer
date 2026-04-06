@@ -21,7 +21,7 @@ Questo file manterrà traccia delle specifiche e verrà aggiornato iterativament
 - Adozione dello **stile AMOLED** (sfondo nero assoluto, card grigio scuro).
 - Rimozione del design eccessivamente gradient/colorato precedente in favore di palette più minimal e funzionali.
 - Sostituzione di **tutte** le vecchie immagini SVG e le emoji sperimentali (inclusi i riferimenti superflui come le gocce testuali da altre app) con un **set coerente di icone SVG minimaliste, senza riempimento (stroke-only)**, in puro stile elegante e focalizzato sugli allenamenti sportivi.
-- **Supporto PWA**: Aggiunto `manifest.json`, `sw.js` e icona riprendendo l'architettura offline di GluGlu.
+- **Supporto PWA**: Aggiunto `manifest.json`, `sw.js` e icona riprendendo l'architettura offline di GluGlu. Ora potenziato con un _Network-First rigoroso ('no-store')_ che bypassa la cache HTTP del browser e assicura l'aggiornamento istantaneo dell'app (selezionando e aggiornando la cache locale per il fallback offline).
 - **Fix Encoding**: Assicurato il corretto funzionamento di tutte le stringhe UTF-8 (testi accentati e simboli).
 - **Grafico Settimanale**: Introdotto un grafico a barre nella sezione "Sessions" (Storico) che mostra i workout completati negli ultimi 7 giorni (come implementato su GluGlu).
 - **Hardaware Back Button (Android PWA)**: Implementato il supporto per il tasto "Indietro" di Android per chiudere i Modal di sistema (`UI.showModal`) in modo nativo intercettando l'API `history.pushState` e chiudendo l'avviso popup corrente.
