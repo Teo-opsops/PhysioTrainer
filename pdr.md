@@ -6,7 +6,7 @@ Questo file manterrà traccia delle specifiche e verrà aggiornato iterativament
 
 ## 2. Architettura e Struttura Informatica
 - **Struttura**: Single-file. Tutto il codice (HTML, CSS, JS) è ora inlined all'interno di `index.html`, seguendo il modello dell'app **GluGlu**.
-- **Persistenza**: Utilizza `IndexedDB` (con fallback su `localStorage`) per salvare in tempo reale esercizi, allenamenti e progressi al sicuro dallo svuotamento cache del browser.
+- **Persistenza Offline e Cloud**: Utilizza `IndexedDB` (con fallback su `localStorage`) per salvare in tempo reale offline. Implementa un layer di sincronizzazione in background su **Google Drive** (`appDataFolder`) tramite `google-sync.js` con **merge ID-based con timestamp `updatedAt`**: esercizi e workout vengono confrontati individualmente per ID, conservando sempre la versione più recente. Le sessioni di allenamento (dati storici) vengono unite come puro append-only (union per ID), garantendo che nessun allenamento completato vada mai perso. Risoluzione conflitti al primo accesso con modal.
 
 ## 3. Stile Visivo e Design
 - **Stile**: Minimal, pulito e moderno.
