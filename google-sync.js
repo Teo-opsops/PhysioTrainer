@@ -21,6 +21,34 @@ var profileAvatar, profileName, profileEmail, syncNowBtn, syncStatusEl;
 var syncConflictOverlay, syncUseCloud, syncUseLocal, syncLocalCount, syncCloudCount;
 var pendingDriveData = null;
 
+// ── Sync Diagnostic Log ──
+var syncLog = [];
+function logSyncEvent(msg, type) {
+  syncLog.push({ time: new Date().toLocaleTimeString('it-IT'), msg: msg, type: type || 'info' });
+  if (syncLog.length > 30) syncLog.shift();
+  renderSyncLog();
+}
+function renderSyncLog() {
+  var el = document.getElementById('sync-details-log');
+  if (!el) return;
+  if (syncLog.length === 0) { el.innerHTML = '<div class="sync-log-empty">Nessun evento recente</div>'; return; }
+  var html = '';
+  for (var i = syncLog.length - 1; i >= 0; i--) {
+    var e = syncLog[i];
+    var cls = e.type === 'error' ? 'sync-log-error' : e.type === 'success' ? 'sync-log-success' : 'sync-log-info';
+    html += '<div class="sync-log-entry ' + cls + '"><span class="sync-log-time">' + e.time + '</span>' + e.msg + '</div>';
+  }
+  el.innerHTML = html;
+}
+function toggleSyncDetails() {
+  var el = document.getElementById('sync-details-log');
+  var chevron = document.getElementById('sync-details-chevron');
+  if (!el) return;
+  var isHidden = el.style.display === 'none' || !el.style.display;
+  el.style.display = isHidden ? 'block' : 'none';
+  if (chevron) chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
+}
+
 function now() { return new Date().toISOString(); }
 
 // ── Token persistence ──
@@ -68,7 +96,7 @@ function preloadGapiAuth() {
         reject(new Error('GAPI script not found'));
       }
     }
-  });
+  }).catch(function(e) { _gapiAuthReady = null; throw e; });
   return _gapiAuthReady;
 }
 preloadGapiAuth().catch(function() {});
@@ -110,7 +138,10 @@ function schedulePredictiveTokenRefresh(expiresInSec) {
         googleAccessToken = result.access_token;
         saveTokenToStorage(result.access_token, result.expires_in || 3600);
         schedulePredictiveTokenRefresh(result.expires_in || 3600);
-      }).catch(function () {});
+      }).catch(function () {
+        logSyncEvent('Refresh preventivo fallito, retry tra 60s', 'error');
+        schedulePredictiveTokenRefresh(360);
+      });
     }
   }, refreshDelayMs);
 }
@@ -134,7 +165,25 @@ function attachUIListeners() {
 
   if (googleSigninBtn) {
     googleSigninBtn.onclick = function () {
-      if (!tokenClient) return alert('Le librerie Google non sono ancora caricate. Riprova tra un momento.');
+      if (!tokenClient) {
+        if (typeof google !== 'undefined' && google.accounts) {
+          initGoogleAuth();
+        }
+        if (!tokenClient) {
+          alert('Impossibile caricare i servizi Google. Verifica la tua connessione internet o riavvia l\'app.');
+          if (!document.querySelector('script[src*="accounts.google.com/gsi/client"]')) {
+            var s = document.createElement('script');
+            s.src = "https://accounts.google.com/gsi/client";
+            s.async = true; s.defer = true;
+            var s2 = document.createElement('script');
+            s2.src = "https://apis.google.com/js/api.js";
+            s2.async = true; s2.defer = true;
+            document.body.appendChild(s);
+            document.body.appendChild(s2);
+          }
+          return;
+        }
+      }
       tokenClient.requestAccessToken();
     };
   }
@@ -190,14 +239,18 @@ var uiAttachInterval = setInterval(function() {
 }, 1000);
 
 // ── Init ──
+var _googleAuthInitRetries = 0;
 function initGoogleAuth() {
   if (typeof google === 'undefined' || !google.accounts) {
     var gScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
     if (gScript && !gScript.dataset.hooked) {
       gScript.dataset.hooked = 'true';
       gScript.addEventListener('load', initGoogleAuth);
-    } else if (!gScript) {
-      setTimeout(initGoogleAuth, 500);
+    }
+    // Always add polling fallback — the load event may have already fired
+    _googleAuthInitRetries++;
+    if (_googleAuthInitRetries < 75) { // retry up to ~15s (75 × 200ms)
+      setTimeout(initGoogleAuth, 200);
     }
     return;
   }
@@ -208,6 +261,8 @@ function initGoogleAuth() {
     callback: handleTokenResponse
   });
 
+  logSyncEvent('Libreria Google caricata', 'info');
+
   var savedUser = localStorage.getItem('physioGoogleUser');
   if (savedUser) {
     try {
@@ -217,6 +272,7 @@ function initGoogleAuth() {
       var storedTokenObj = loadTokenFromStorage(true);
       if (storedTokenObj && storedTokenObj.token) {
         googleAccessToken = storedTokenObj.token;
+        logSyncEvent('Token valido ripristinato dalla cache', 'success');
         var timeToExpireSec = Math.floor((storedTokenObj.expiry - Date.now()) / 1000);
         schedulePredictiveTokenRefresh(timeToExpireSec);
         if (localStorage.getItem('physioLastSync')) performStartupSync();
@@ -225,9 +281,11 @@ function initGoogleAuth() {
         silentRefreshViaGapi(googleUser.email).then(function (result) {
           googleAccessToken = result.access_token;
           saveTokenToStorage(result.access_token, result.expires_in || 3600);
+          logSyncEvent('Token rinnovato silenziosamente', 'success');
           if (localStorage.getItem('physioLastSync')) performStartupSync();
           else firstSyncCheck();
         }).catch(function () {
+          logSyncEvent('Refresh token fallito', 'error');
           updateSyncStatus('Tocca Sync per aggiornare', '');
         });
       }
@@ -325,10 +383,12 @@ function ensureToken() {
           saveTokenToStorage(result.access_token, result.expires_in || 3600);
           schedulePredictiveTokenRefresh(result.expires_in || 3600);
           console.log('PhysioTrainer: token auto-refreshed during ensureToken');
+          logSyncEvent('Token auto-rinnovato', 'success');
           resolve(result.access_token);
         })
         .catch(function (err) {
           console.warn('PhysioTrainer: silent refresh in ensureToken failed —', err.message);
+          logSyncEvent('Token scaduto, rinnovo fallito', 'error');
           reject(new Error('Token scaduto. Tocca Sincronizza per aggiornare.'));
         });
     } else {
@@ -337,7 +397,7 @@ function ensureToken() {
   });
 }
 
-function driveFetch(url, options) {
+function driveFetch(url, options, _isRetry) {
   options = options || {};
   options.headers = options.headers || {};
   options.headers['Authorization'] = 'Bearer ' + googleAccessToken;
@@ -349,6 +409,24 @@ function driveFetch(url, options) {
       throw err;
     }
     return res;
+  }).catch(function (err) {
+    if (!_isRetry && err.status && (err.status === 401 || err.status === 403) && googleUser && googleUser.email) {
+      logSyncEvent('Errore auth ' + err.status + ', retry...', 'info');
+      return silentRefreshViaGapi(googleUser.email).then(function (result) {
+        googleAccessToken = result.access_token;
+        saveTokenToStorage(result.access_token, result.expires_in || 3600);
+        schedulePredictiveTokenRefresh(result.expires_in || 3600);
+        var retryOpts = JSON.parse(JSON.stringify(options));
+        retryOpts.headers['Authorization'] = 'Bearer ' + googleAccessToken;
+        if (options.body) retryOpts.body = options.body;
+        return driveFetch(url, retryOpts, true);
+      });
+    }
+    if (err.message && err.message.toLowerCase().indexOf('failed to fetch') !== -1) {
+      logSyncEvent('Errore di rete (connessione assente)', 'error');
+      throw new Error('Errore di rete. Controlla la connessione.');
+    }
+    throw err;
   });
 }
 
@@ -370,7 +448,15 @@ function findDriveFile() {
 
 function readDriveFile(fileId) {
   return driveFetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media')
-  .then(function (res) { return res.json(); });
+  .then(function (res) { return res.json(); })
+  .catch(function (err) {
+    if (err.status === 404) {
+      logSyncEvent('File cloud non trovato, ricerca...', 'info');
+      driveFileId = null;
+      localStorage.removeItem('physioDriveFileId');
+    }
+    throw err;
+  });
 }
 
 function writeDriveFile(data) {
@@ -378,7 +464,16 @@ function writeDriveFile(data) {
   if (driveFileId) {
     return driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: jsonStr
-    }).then(function (res) { return res.json(); });
+    }).then(function (res) { return res.json(); })
+    .catch(function (err) {
+      if (err.status === 404) {
+        logSyncEvent('File PATCH 404, ricreazione...', 'info');
+        driveFileId = null;
+        localStorage.removeItem('physioDriveFileId');
+        return writeDriveFile(data);
+      }
+      throw err;
+    });
   }
   var boundary = '---physio' + Date.now();
   var metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json', parents: ['appDataFolder'] };
@@ -511,13 +606,17 @@ function firstSyncCheck() {
       if (syncCloudCount) syncCloudCount.textContent = getCountLabel(driveData);
       if (syncConflictOverlay) syncConflictOverlay.style.display = 'flex';
     });
-  }).catch(function (err) { console.error('First sync error:', err); });
+  }).catch(function (err) {
+    console.error('First sync error:', err);
+    logSyncEvent('Errore primo check: ' + (err ? err.message : ''), 'error');
+  });
 }
 
 // ── Startup sync (with merge) ──
 function performStartupSync() {
   if (isSyncing || !googleUser) return;
   isSyncing = true;
+  logSyncEvent('Sync automatica avvio...', 'info');
   ensureToken().then(findDriveFile).then(function (fileInfo) {
     if (fileInfo) {
       return readDriveFile(fileInfo.id).then(function (driveData) {
@@ -541,8 +640,10 @@ function performStartupSync() {
     localStorage.setItem('physioLastSync', now());
     hasPendingChanges = false;
     updateSyncStatus('Sincronizzato ✓', '');
+    logSyncEvent('Sync completata ✓', 'success');
   }).catch(function(err) {
     console.error('Startup sync error:', err);
+    logSyncEvent('Errore sync avvio: ' + (err.message || err), 'error');
     updateSyncStatus('Errore sync iniziale', 'error');
   }).finally(function () { isSyncing = false; });
 }
@@ -580,6 +681,7 @@ function syncWithDrive(silent) {
   }).catch(function(err) {
     console.error('Sync error:', err);
     var errMsg = err && err.message ? err.message : 'Errore di sync';
+    logSyncEvent('Errore sync: ' + errMsg, 'error');
     if (!silent) updateSyncStatus(errMsg, 'error');
   }).finally(function () { isSyncing = false; });
 }

@@ -1620,6 +1620,13 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
 .sync-status-compact.success { color: #10b981; }
 .sync-status-compact.error { color: var(--danger); }
 
+.sync-log-entry { font-size:0.65rem; padding:3px 6px; border-radius:4px; margin-bottom:2px; font-family:inherit; word-break:break-word; }
+.sync-log-time { opacity:0.5; margin-right:6px; }
+.sync-log-error { color:#ef4444; background:rgba(239,68,68,0.08); }
+.sync-log-success { color:#10b981; background:rgba(16,185,129,0.08); }
+.sync-log-info { color:rgba(255,255,255,0.4); }
+.sync-log-empty { font-size:0.65rem; color:rgba(255,255,255,0.3); text-align:center; padding:12px; }
+
 .google-actions-compact {
   display: flex;
   gap: 8px;
@@ -2141,6 +2148,7 @@ const Storage = (() => {
     const newExercise = {
       id: _generateId('ex'),
       name: exercise.name || 'Unnamed Exercise',
+      description: exercise.description || '',
       mediaType: exercise.mediaType || 'none',
       mediaData: exercise.mediaData || null,
       mediaThumbnail: exercise.mediaThumbnail || null,
@@ -4175,6 +4183,13 @@ const App = (() => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 </button>
               </div>
+            </div>
+            <div class="sync-details-wrapper" style="margin-top:10px;">
+              <div class="sync-details-toggle" onclick="toggleSyncDetails()" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:0.7rem;color:var(--text-tertiary);opacity:0.6;">
+                <span>More details</span>
+                <svg id="sync-details-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s ease"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div id="sync-details-log" style="display:none;margin-top:8px;max-height:160px;overflow-y:auto;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);padding:8px;"></div>
             </div>
           </div>
         </div>
