@@ -1563,6 +1563,91 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
 .sortable-item[draggable="true"] { cursor: grab; }
 .sortable-item.drag-over { border-top: 2px solid var(--accent-primary); }
 
+/* ── Google Sync UI (Minimalist) ── */
+.google-btn-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.google-btn-minimal:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-primary);
+}
+
+.google-profile-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+.profile-avatar-compact {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--glass-border);
+}
+.profile-text-compact {
+  flex: 1;
+  min-width: 0;
+}
+.profile-name-compact {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sync-status-compact {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.sync-status-compact.syncing { color: var(--accent-primary); }
+.sync-status-compact.success { color: #10b981; }
+.sync-status-compact.error { color: var(--danger); }
+
+.google-actions-compact {
+  display: flex;
+  gap: 8px;
+}
+.action-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.action-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+.action-icon-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
 </style>
 
   <!-- Preload fonts -->
@@ -4065,36 +4150,35 @@ const App = (() => {
       <div class="main-content view-enter">
       
 
-        <div class="section-title">Google Sync</div>
-        <div class="card" id="profile-card" style="margin-bottom: var(--space-lg);">
+        <div class="section-title">Cloud Sync</div>
+        <div class="card" id="profile-card" style="margin-bottom: var(--space-lg); padding: var(--space-md);">
           <!-- Signed out state -->
-          <div id="google-signed-out" style="padding: var(--space-md); text-align: center;">
-            <button id="google-signin-btn" class="btn btn-secondary" style="width: 100%; height: 48px; border-radius: var(--radius-sm); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+          <div id="google-signed-out">
+            <button id="google-signin-btn" class="google-btn-minimal">
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-              Connetti Account
+              <span>Connetti account Google</span>
             </button>
           </div>
           <!-- Signed in state -->
-          <div id="google-signed-in" style="display:none; padding: var(--space-md);">
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-              <img id="profile-avatar" src="" alt="" style="width: 48px; height: 48px; border-radius: 50%; display: none;">
-              <div>
-                <div id="profile-name" style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);"></div>
-                <div id="profile-email" style="font-size: 0.8rem; color: var(--text-secondary);"></div>
+          <div id="google-signed-in" style="display:none;">
+            <div class="google-profile-compact">
+              <img id="profile-avatar" class="profile-avatar-compact" src="" alt="">
+              <div class="profile-text-compact">
+                <div id="profile-name" class="profile-name-compact"></div>
+                <div id="sync-status" class="sync-status-compact">Non sincronizzato</div>
               </div>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <button id="sync-now-btn" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  Sync ora
+              <div class="google-actions-compact">
+                <button id="sync-now-btn" class="action-icon-btn" title="Sincronizza ora">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </button>
-                <div id="sync-status" style="font-size: 0.8rem; color: var(--text-secondary);">Non sincronizzato</div>
+                <button id="google-signout-btn" class="action-icon-btn danger" title="Disconnetti">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
               </div>
-              <button id="google-signout-btn" class="btn btn-danger" style="width: 100%; padding: 0.5rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-top: 0.5rem;">Disconnetti</button>
             </div>
           </div>
         </div>
+
 
         <div class="section-title">Notifications</div>
         <div class="card" style="cursor:default; margin-bottom: var(--space-lg);">
