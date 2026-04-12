@@ -1,4 +1,4 @@
-const CACHE_NAME = 'physiotrainer-v5';
+const CACHE_NAME = 'physiotrainer-v6'; // v6: skip external URLs
 const ASSETS = [
     './',
     './index.html',
@@ -32,8 +32,14 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch event: Network-First strategy with dynamic cache update
+// CRITICAL: Only handle same-origin requests. External URLs (Google APIs,
+// fonts, CDNs) must NOT be intercepted — the Service Worker re-issuing
+// cross-origin requests with Authorization headers causes errors.
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
+
+    // Skip all external (cross-origin) requests — let them go through normally
+    if (!event.request.url.startsWith(self.location.origin)) return;
 
     event.respondWith(
         fetch(event.request, { cache: 'no-store' })
