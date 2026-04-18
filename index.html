@@ -1655,6 +1655,50 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
   border-color: var(--danger);
 }
 
+/* ---------- Chart Toggle (GluGlu style) ---------- */
+.chart-toggle {
+  display: flex;
+  background: var(--bg-color);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.chart-toggle-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.chart-toggle-btn.active {
+  background: var(--accent-primary);
+  color: var(--bg-color);
+}
+
+/* ---------- Save/Floppy Button ---------- */
+.btn-save-workout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-save-workout:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+}
+
 </style>
 
   <!-- Preload fonts -->
@@ -2241,7 +2285,7 @@ const Storage = (() => {
   }
 
   function saveSession(session) {
-    const sessions = getSessions();
+    let sessions = getSessions();
     const newSession = {
       id: _generateId('ws'),
       workoutId: session.workoutId,
@@ -2250,6 +2294,10 @@ const Storage = (() => {
       completed: session.completed || false,
     };
     sessions.push(newSession);
+    // Prune oldest sessions to keep under 1500 entries (like GluGlu)
+    if (sessions.length > 1500) {
+      sessions = sessions.slice(sessions.length - 1500);
+    }
     _set(KEYS.sessions, sessions);
     return newSession;
   }
@@ -3070,6 +3118,7 @@ const Player = (() => {
 
   // History state
   const expandedGroups = new Set();
+  let chartDays = 7; // 7 or 30
 
   // --- Render: Exercise selection for a workout ---
   function renderExerciseSelection(workoutId) {
@@ -3101,6 +3150,9 @@ const Player = (() => {
           <button class="btn-back" onclick="Player.exitWorkout()">${UI.icon('arrowLeft')}</button>
           <span class="header-title">${workout.name}</span>
         </div>
+        <button class="btn-save-workout" onclick="Player.saveAndExit()" title="Save & Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </button>
       </div>
       <div class="main-content view-enter">
         <p class="text-secondary mb-lg">Select an exercise to start</p>
@@ -3200,6 +3252,9 @@ const Player = (() => {
           <button class="btn-back" onclick="Player.backToList()">${UI.icon('arrowLeft')}</button>
           <span class="header-title">${exercise.name}</span>
         </div>
+        <button class="btn-save-workout" onclick="Player.saveAndExit()" title="Save & Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        </button>
       </div>
       <div class="main-content view-enter">
         <!-- Collapsible sections for Media & Description -->
@@ -3642,9 +3697,15 @@ const Player = (() => {
         </div>
       </div>
       <div class="main-content view-enter">
-        <div class="section-title">Weekly Activity</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--space-sm);">
+          <div class="section-title" style="margin-bottom:0;">Activity</div>
+          <div class="chart-toggle">
+            <button class="chart-toggle-btn ${chartDays === 7 ? 'active' : ''}" onclick="Player.setChartDays(7)">7 gg</button>
+            <button class="chart-toggle-btn ${chartDays === 30 ? 'active' : ''}" onclick="Player.setChartDays(30)">30 gg</button>
+          </div>
+        </div>
         <div class="card stagger-item" style="margin-bottom: var(--space-md); padding-bottom: 0;">
-          <div style="position:relative; width:100%; height:160px; pointer-events:none;">
+          <div style="position:relative; width:100%; height:180px; pointer-events:none;">
             <canvas id="weekly-chart-canvas" style="width:100%; height:100%; display:block;"></canvas>
           </div>
         </div>
@@ -3817,6 +3878,21 @@ const Player = (() => {
     });
   }
 
+  function saveAndExit() {
+    stopTimer();
+    if (hasActiveSessionData()) {
+      saveSession();
+      App.goBack('#workouts');
+    } else {
+      App.goBack('#workouts');
+    }
+  }
+
+  function setChartDays(days) {
+    chartDays = days;
+    App.navigate('#sessions');
+  }
+
   return {
     renderExerciseSelection,
     renderPlayer,
@@ -3836,8 +3912,11 @@ const Player = (() => {
     deleteCompletedSet,
     backToList,
     exitWorkout,
+    saveAndExit,
     hasActiveSessionData,
     toggleCollapsible,
+    setChartDays,
+    getChartDays: () => chartDays,
   };
 })();
 
@@ -4046,9 +4125,9 @@ const App = (() => {
     const H = rect.height;
     ctx.clearRect(0, 0, W, H);
     
-    // Get last 7 days stats
+    // Use configurable days from Player (7 or 30)
     const sessions = Storage.getSessions();
-    const days = 7;
+    const days = Player.getChartDays ? Player.getChartDays() : 7;
     const data = [];
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -4057,7 +4136,13 @@ const App = (() => {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const isToday = i === 0;
-      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+      
+      let dayLabel;
+      if (days <= 7) {
+        dayLabel = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+      } else {
+        dayLabel = d.getDate().toString();
+      }
       
       const startOfDay = d.getTime();
       const endOfDay = startOfDay + 24*60*60*1000;
@@ -4075,11 +4160,11 @@ const App = (() => {
     const maxCount = Math.max(1, ...data.map(d => d.count));
     const maxVal = Math.ceil(maxCount / 2) * 2; 
     
-    const padL = 20, padR = 8, padT = 16, padB = 24;
+    const padL = 20, padR = 8, padT = 16, padB = 28;
     const chartW = W - padL - padR;
     const chartH = H - padT - padB;
     const gap = chartW / data.length;
-    const barW = Math.min(gap * 0.6, 24);
+    const barW = Math.min(gap * 0.6, days <= 7 ? 24 : 16);
     
     // Y Axis lines
     ctx.fillStyle = '#6b6b80';
@@ -4136,10 +4221,18 @@ const App = (() => {
             });
         }
         
-        ctx.fillStyle = d.isToday ? '#38bdf8' : '#6b6b80';
-        ctx.font = (d.isToday ? '700' : '500') + ' 10px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.label, x + barW / 2, H - 4);
+        // X labels: show every label for 7 days, every 5th for 30 days
+        let shouldDrawLabel = true;
+        if (days > 7) {
+          shouldDrawLabel = (data.length - 1 - idx) % 5 === 0;
+        }
+        
+        if (shouldDrawLabel) {
+          ctx.fillStyle = d.isToday ? '#38bdf8' : '#6b6b80';
+          ctx.font = (d.isToday ? '700' : '500') + ' 9px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(d.label, x + barW / 2, H - 6);
+        }
     });
   }
 
