@@ -37,6 +37,7 @@
 
   /* Text */
   --text-primary: #f0f0f5;
+  --text-pure: #ffffff;
   --text-secondary: #a0a0b8;
   --text-muted: #6b6b80;
 
@@ -45,6 +46,8 @@
   --warning: #f59e0b;
   --danger: #ef4444;
 
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.03);
   /* Glass */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.05);
@@ -78,6 +81,87 @@
   --shadow-glow-accent: 0 0 15px rgba(56, 189, 248, 0.2);
 }
 
+/* ── Gamification Theme Overrides ── */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fafb;
+  --bg-elevated: #ffffff;
+  --text-primary: #111827;
+  --text-pure: #000000;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --glass-bg: #f9fafb;
+  --glass-border: #e2e4e9;
+}
+
+[data-theme="light"] .header,
+[data-theme="light"] .bottom-nav {
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+[data-theme="light"] .settings-card-unified,
+[data-theme="light"] .card {
+  background: #f9fafb;
+}
+
+/* ── Color Themes ── */
+body.theme-cyan {
+  --accent-primary: #38bdf8;
+  --accent-secondary: #0ea5e9;
+  --accent-gradient: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  --accent-gradient-hover: linear-gradient(135deg, #0ea5e9, #0284c7);
+  --shadow-glow-accent: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+body.theme-emerald {
+  --accent-primary: #34d399;
+  --accent-secondary: #059669;
+  --accent-gradient: linear-gradient(135deg, #34d399, #059669);
+  --accent-gradient-hover: linear-gradient(135deg, #059669, #047857);
+  --shadow-glow-accent: 0 0 15px rgba(52, 211, 153, 0.2);
+}
+body.theme-violet {
+  --accent-primary: #a78bfa;
+  --accent-secondary: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #a78bfa, #7c3aed);
+  --accent-gradient-hover: linear-gradient(135deg, #7c3aed, #6d28d9);
+  --shadow-glow-accent: 0 0 15px rgba(167, 139, 250, 0.2);
+}
+body.theme-coral {
+  --accent-primary: #fb7185;
+  --accent-secondary: #e11d48;
+  --accent-gradient: linear-gradient(135deg, #fb7185, #e11d48);
+  --accent-gradient-hover: linear-gradient(135deg, #e11d48, #be123c);
+  --shadow-glow-accent: 0 0 15px rgba(251, 113, 133, 0.2);
+}
+body.theme-gold {
+  --accent-primary: #fbbf24;
+  --accent-secondary: #d97706;
+  --accent-gradient: linear-gradient(135deg, #fbbf24, #d97706);
+  --accent-gradient-hover: linear-gradient(135deg, #d97706, #b45309);
+  --shadow-glow-accent: 0 0 15px rgba(251, 191, 36, 0.2);
+}
+body.theme-white {
+  --accent-primary: #ffffff;
+  --accent-secondary: #ffffff;
+  --accent-gradient: #ffffff;
+  --accent-gradient-hover: #e5e5e5;
+  --shadow-glow-accent: 0 0 15px rgba(255, 255, 255, 0.2);
+  --accent-text: #000000;
+}
+
+[data-theme="light"] body.theme-white {
+  --accent-primary: #000000;
+  --accent-secondary: #000000;
+  --accent-gradient: #000000;
+  --accent-gradient-hover: #1f2937;
+  --shadow-glow-accent: 0 0 15px rgba(0, 0, 0, 0.2);
+  --accent-text: #ffffff;
+}
+
 /* ---------- Reset & Base ---------- */
 *, *::before, *::after {
   margin: 0;
@@ -109,7 +193,7 @@ body {
   min-height: 100vh;
   position: relative;
   background-color: var(--bg-secondary);
-  box-shadow: 0 0 80px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 0 80px color-mix(in srgb, var(--accent-primary) 8%, transparent);
 }
 
 /* ---------- Typography ---------- */
@@ -136,7 +220,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(18, 18, 26, 0.85);
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--glass-border);
@@ -202,7 +286,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   align-items: center;
   padding: var(--space-sm) var(--space-md);
   padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
-  background: rgba(10, 10, 15, 0.92);
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-top: 1px solid var(--glass-border);
@@ -217,7 +301,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   padding: var(--space-xs) var(--space-sm);
   border: none;
   background: none;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition-normal);
   border-radius: var(--radius-sm);
@@ -241,7 +325,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 }
 
 .nav-item.active svg {
-  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent-primary) 50%, transparent));
 }
 
 .nav-item:hover {
@@ -389,7 +473,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 .btn-primary {
   background: var(--accent-gradient);
-  color: white;
+  color: var(--accent-text, white);
   box-shadow: var(--shadow-glow);
 }
 
@@ -495,7 +579,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 .form-input:focus, .form-textarea:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 15%, transparent);
 }
 
 .form-input.error, .form-textarea.error {
@@ -534,7 +618,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 .media-upload-area:hover {
   border-color: var(--accent-primary);
-  background: rgba(124, 58, 237, 0.05);
+  background: color-mix(in srgb, var(--accent-primary) 5%, transparent);
 }
 
 .media-upload-area.has-media {
@@ -588,12 +672,12 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 }
 
 .badge-accent {
-  background: rgba(124, 58, 237, 0.15);
+  background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
   color: var(--accent-primary);
 }
 
 .badge-teal {
-  background: rgba(6, 182, 212, 0.15);
+  background: color-mix(in srgb, var(--accent-secondary) 15%, transparent);
   color: var(--accent-secondary);
 }
 
@@ -704,9 +788,9 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 }
 
 .toast-info {
-  background: rgba(124, 58, 237, 0.9);
-  color: white;
-  border: 1px solid rgba(124, 58, 237, 0.5);
+  background: color-mix(in srgb, var(--accent-primary) 90%, transparent);
+  color: var(--accent-text, white);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
 /* ---------- Checkbox List (for exercise selection modal) ---------- */
@@ -747,9 +831,14 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   border-color: transparent;
 }
 
+.checkbox-item.checked .checkbox-custom svg {
+  color: var(--accent-text, white);
+  transform: scale(1);
+}
+
 .checkbox-item.checked .checkbox-custom::after {
   content: '\2713';
-  color: white;
+  color: var(--accent-text, white);
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -942,12 +1031,12 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   height: 64px;
   font-size: 2rem;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 12px rgba(124, 58, 237, 0.2);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 20%, transparent);
 }
 
 .btn-rep-plus:hover {
-  background: rgba(124, 58, 237, 0.15);
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
 
 .btn-rep-minus:hover {
@@ -1028,7 +1117,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 .search-bar input:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 10%, transparent);
 }
 
 /* ---------- Empty State ---------- */
@@ -1149,7 +1238,7 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
-  color: white;
+  color: var(--accent-text, white);
   flex-shrink: 0;
 }
 
@@ -1374,8 +1463,8 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 }
 
 .btn-timer-adj.highlight {
-  color: #06b6d4;
-  border-color: rgba(6, 182, 212, 0.3);
+  color: var(--accent-primary);
+  border-color: var(--accent-secondary);
 }
 
 .btn-timer-adj:active {
@@ -1552,11 +1641,10 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 
 
 /* ADDITIONAL MINIMAL DESIGN FOR ICONS AND CARDS */
-svg { width: 22px !important; height: 22px !important; color: var(--text-primary) !important; filter: drop-shadow(0 0 0 transparent) !important; opacity: 0.9; }
+svg { width: 22px !important; height: 22px !important; color: inherit !important; filter: drop-shadow(0 0 0 transparent) !important; opacity: 0.9; }
 .card { border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg-card); }
 .card::before { display: none !important; }
 .btn { border-radius: 8px !important; font-weight: 500 !important; }
-.bottom-nav { background: #000000 !important; border-top: 1px solid var(--bg-card); }
 .btn-minimal { background: none !important; border: none !important; opacity: 0.6; transition: var(--transition-fast); }
 .btn-minimal:hover { opacity: 1; }
 .dragging { opacity: 0.4; }
@@ -1676,7 +1764,7 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
 }
 .chart-toggle-btn.active {
   background: var(--accent-primary);
-  color: var(--bg-color);
+  color: var(--accent-text, white);
 }
 
 /* ---------- Save/Floppy Button ---------- */
@@ -1699,6 +1787,42 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
   border-color: #10b981;
 }
 
+/* ── Settings Modal Custom (GluGlu style) ── */
+.settings-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); z-index: 3000; display: flex; align-items: center; justify-content: center;
+  padding: 24px; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.settings-overlay.visible { opacity: 1; visibility: visible; }
+.settings-menu {
+  background: var(--bg-elevated); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+  width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto; padding: 1.5rem;
+  transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.settings-overlay.visible .settings-menu { transform: translateY(0) scale(1); }
+.settings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
+.settings-title { font-size: 1.15rem; font-weight: 700; color: var(--accent-primary); }
+.settings-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; display:flex; align-items:center; transition: color 0.2s; }
+.settings-close:hover { color: var(--accent-primary); }
+.settings-section-title { font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; margin-top: 1.25rem; font-weight: 600; font-family: 'Inter', sans-serif; }
+.settings-section-title:first-of-type { margin-top: 0; }
+.settings-card-unified { background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); margin-bottom: 0.5rem; overflow: hidden; }
+.settings-row-unified { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; gap: 0.75rem; }
+
+.settings-row-left { display: flex; align-items: center; gap: 0.75rem; }
+.settings-row-icon { width: 28px; height: 28px; border-radius: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.95rem; background: none !important; color: var(--text-secondary) !important; }
+.settings-row-icon svg { width: 18px; height: 18px; stroke: var(--text-secondary); }
+.settings-row-label { font-size: 0.88rem; color: var(--text-primary); font-weight: 500; font-family: 'Inter', sans-serif; }
+
+.theme-selector { display: flex; background: var(--bg-elevated); border: 1px solid var(--glass-border); border-radius: 10px; padding: 3px; gap: 6px; }
+.theme-option { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; border: none; background: transparent; font-family: inherit; transition: all 0.2s; white-space: nowrap; }
+.theme-option.active { background: var(--accent-gradient); color: var(--accent-text, white); }
+
+.color-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; position: relative; flex-shrink: 0; }
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: var(--text-primary); box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-primary); }
+.color-swatch.active::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat; }
 </style>
 
   <!-- Preload fonts -->
@@ -1713,6 +1837,19 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
   <div id="app-wrapper">
     <div id="app-container">
       <!-- Content injected by router -->
+    </div>
+  </div>
+
+  <!-- ═══════ SETTINGS MODAL ═══════ -->
+  <div id="settings-modal" class="settings-overlay" onclick="if(event.target===this) this.classList.remove('visible')">
+    <div class="settings-menu">
+      <div class="settings-header">
+        <h2 class="settings-title">Impostazioni</h2>
+        <button class="settings-close" onclick="document.getElementById('settings-modal').classList.remove('visible')">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div id="settings-modal-body"></div>
     </div>
   </div>
 
@@ -1734,7 +1871,7 @@ svg { width: 22px !important; height: 22px !important; color: var(--text-primary
       </div>
       
       <div style="display:flex; flex-direction:column; gap:0.75rem;">
-        <button id="sync-use-cloud" class="btn" style="background:var(--accent-gradient); color:#fff; padding:0.85rem; justify-content:center;">
+        <button id="sync-use-cloud" class="btn" style="background:var(--accent-gradient); color:var(--accent-text, #fff); padding:0.85rem; justify-content:center;">
           Sovrascrivi dati locali
         </button>
         <button id="sync-use-local" class="btn btn-secondary" style="padding:0.85rem; justify-content:center;">
@@ -1998,8 +2135,9 @@ function icon(name) {
     const workouts = Storage.getWorkouts();
     let idx = workouts.findIndex(w => w.id === workoutId);
     if (idx === -1) return '#6b6b80'; // fallback for deleted workouts
+    const primaryAccent = getComputedStyle(document.body).getPropertyValue('--accent-primary').trim() || '#38bdf8';
     const WORKOUT_COLORS = [
-      '#38bdf8', '#10b981', '#f43f5e', '#8b5cf6', '#f59e0b', '#14b8a6', '#ec4899', '#84cc16'
+      primaryAccent, '#10b981', '#f43f5e', '#8b5cf6', '#f59e0b', '#14b8a6', '#ec4899', '#84cc16'
     ];
     return WORKOUT_COLORS[idx % WORKOUT_COLORS.length];
   }
@@ -2423,9 +2561,14 @@ const Exercises = (() => {
           <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
           <span class="header-title">My Exercises</span>
         </div>
-        <button class="btn btn-primary" onclick="App.navigate('#exercise/new')">
-          ${UI.icon('plus')} New
-        </button>
+        <div class="header-right" style="display:flex; align-items:center; gap:8px;">
+          <button style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:6px; display:flex; align-items:center;" onclick="App.openSettings()">
+            ${UI.icon('settings')}
+          </button>
+          <button class="btn btn-primary" onclick="App.navigate('#exercise/new')">
+            ${UI.icon('plus')} New
+          </button>
+        </div>
       </div>
       <div class="main-content view-enter">
     `;
@@ -2775,9 +2918,14 @@ const Workouts = (() => {
           <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
           <span class="header-title">My Workouts</span>
         </div>
-        <button class="btn btn-primary" onclick="App.navigate('#workout/new')">
-          ${UI.icon('plus')} New
-        </button>
+        <div class="header-right" style="display:flex; align-items:center; gap:8px;">
+          <button style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:6px; display:flex; align-items:center;" onclick="App.openSettings()">
+            ${UI.icon('settings')}
+          </button>
+          <button class="btn btn-primary" onclick="App.navigate('#workout/new')">
+            ${UI.icon('plus')} New
+          </button>
+        </div>
       </div>
       <div class="main-content view-enter">
     `;
@@ -3695,6 +3843,11 @@ const Player = (() => {
           <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
           <span class="header-title">Sessions History</span>
         </div>
+        <div class="header-right">
+          <button style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:6px; display:flex; align-items:center;" onclick="App.openSettings()">
+            ${UI.icon('settings')}
+          </button>
+        </div>
       </div>
       <div class="main-content view-enter">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--space-sm);">
@@ -4030,9 +4183,9 @@ const App = (() => {
         activeNav = 'sessions';
         break;
 
-      case 'settings':
-        content = renderSettings();
-        activeNav = 'settings';
+      case 'sessions':
+        content = Player.renderSessions();
+        activeNav = 'sessions';
         break;
 
       default:
@@ -4056,12 +4209,16 @@ const App = (() => {
     const workoutCount = Storage.getWorkouts().length;
     const sessionCount = Storage.getSessions().length;
     let greeting = UI.getGreeting();
-    // Since UI.getGreeting might still return Italian if not translated yet, use a quick fallback
     
     return `
       <div class="header">
         <div class="header-left">
           <span class="header-title" style="font-size:1.25rem;">PhysioTrainer</span>
+        </div>
+        <div class="header-right">
+          <button style="background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:6px; display:flex; align-items:center;" onclick="App.openSettings()">
+            ${UI.icon('settings')}
+          </button>
         </div>
       </div>
       <div class="main-content view-enter">
@@ -4228,7 +4385,8 @@ const App = (() => {
         }
         
         if (shouldDrawLabel) {
-          ctx.fillStyle = d.isToday ? '#38bdf8' : '#6b6b80';
+          const primaryAccent = getComputedStyle(document.body).getPropertyValue('--accent-primary').trim() || '#38bdf8';
+          ctx.fillStyle = d.isToday ? primaryAccent : '#6b6b80';
           ctx.font = (d.isToday ? '700' : '500') + ' 9px Inter, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText(d.label, x + barW / 2, H - 6);
@@ -4237,132 +4395,150 @@ const App = (() => {
   }
 
   // --- Settings ---
-  function renderSettings() {
+  function openSettings() {
     const usage = Storage.getStorageUsage();
-
-    return `
-      <div class="header">
-        <div class="header-left">
-          <button class="btn-back" onclick="App.goBack('#home')">${UI.icon('arrowLeft')}</button>
-          <span class="header-title">Settings</span>
+    
+    const contentHtml = `
+      <div class="settings-section-title">Cloud Sync</div>
+      <div class="settings-card-unified" id="profile-card">
+        <!-- Signed out state -->
+        <div id="google-signed-out">
+          <button id="google-signin-btn" class="settings-row-unified" style="background:transparent; border:none; width:100%; cursor:pointer; font-family:inherit; justify-content:flex-start; gap:0.75rem; color:var(--text-pure);">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span style="font-weight:500;">Connetti account Google</span>
+          </button>
+        </div>
+        <!-- Signed in state -->
+        <div id="google-signed-in" style="display:none; padding:1rem;">
+          <div class="google-profile-compact">
+            <img id="profile-avatar" class="profile-avatar-compact" src="" alt="">
+            <div class="profile-text-compact">
+              <div id="profile-name" class="profile-name-compact"></div>
+              <div id="sync-status" class="sync-status-compact">Non sincronizzato</div>
+            </div>
+            <div class="google-actions-compact">
+              <button id="sync-now-btn" class="action-icon-btn" title="Sincronizza ora">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </button>
+              <button id="google-signout-btn" class="action-icon-btn danger" title="Disconnetti">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="sync-details-wrapper" style="margin-top:10px;">
+            <div class="sync-details-toggle" onclick="toggleSyncDetails()" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:0.7rem;color:var(--text-tertiary);opacity:0.6;">
+              <span>More details</span>
+              <svg id="sync-details-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s ease"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div id="sync-details-log" style="display:none;margin-top:8px;max-height:160px;overflow-y:auto;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);padding:8px;"></div>
+          </div>
         </div>
       </div>
-      <div class="main-content view-enter">
-      
 
-        <div class="section-title">Cloud Sync</div>
-        <div class="card" id="profile-card" style="margin-bottom: var(--space-lg); padding: var(--space-md);">
-          <!-- Signed out state -->
-          <div id="google-signed-out">
-            <button id="google-signin-btn" class="google-btn-minimal">
-              <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-              <span>Connetti account Google</span>
-            </button>
+      <div class="settings-section-title">Aspetto</div>
+      <div class="settings-card-unified">
+        <div class="settings-row-unified">
+          <div class="settings-row-left">
+            <div class="settings-row-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </div>
+            <div class="settings-row-label">Tema</div>
           </div>
-          <!-- Signed in state -->
-          <div id="google-signed-in" style="display:none;">
-            <div class="google-profile-compact">
-              <img id="profile-avatar" class="profile-avatar-compact" src="" alt="">
-              <div class="profile-text-compact">
-                <div id="profile-name" class="profile-name-compact"></div>
-                <div id="sync-status" class="sync-status-compact">Non sincronizzato</div>
-              </div>
-              <div class="google-actions-compact">
-                <button id="sync-now-btn" class="action-icon-btn" title="Sincronizza ora">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                </button>
-                <button id="google-signout-btn" class="action-icon-btn danger" title="Disconnetti">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </button>
-              </div>
-            </div>
-            <div class="sync-details-wrapper" style="margin-top:10px;">
-              <div class="sync-details-toggle" onclick="toggleSyncDetails()" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:0.7rem;color:var(--text-tertiary);opacity:0.6;">
-                <span>More details</span>
-                <svg id="sync-details-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s ease"><polyline points="6 9 12 15 18 9"/></svg>
-              </div>
-              <div id="sync-details-log" style="display:none;margin-top:8px;max-height:160px;overflow-y:auto;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);padding:8px;"></div>
-            </div>
+          <div class="theme-selector" id="theme-selector">
+            <button class="theme-option ${currentMode === 'auto' ? 'active' : ''}" onclick="App.applyLightMode('auto')" data-theme="auto">Auto</button>
+            <button class="theme-option ${currentMode === 'dark' ? 'active' : ''}" onclick="App.applyLightMode('dark')" data-theme="dark">Scuro</button>
+            <button class="theme-option ${currentMode === 'light' ? 'active' : ''}" onclick="App.applyLightMode('light')" data-theme="light">Chiaro</button>
           </div>
         </div>
 
+        <div class="settings-row-unified">
+          <div class="settings-row-left">
+            <div class="settings-row-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+              </svg>
+            </div>
+            <div class="settings-row-label">Colore</div>
+          </div>
+          <div class="color-swatches" id="theme-picker">
+            <div class="color-swatch ${currentColor === 'cyan' ? 'active' : ''}" onclick="App.applyColorTheme('cyan')" data-theme="cyan" style="background:#38bdf8" title="Cyan"></div>
+            <div class="color-swatch ${currentColor === 'emerald' ? 'active' : ''}" onclick="App.applyColorTheme('emerald')" data-theme="emerald" style="background:#34d399" title="Smeraldo"></div>
+            <div class="color-swatch ${currentColor === 'violet' ? 'active' : ''}" onclick="App.applyColorTheme('violet')" data-theme="violet" style="background:#a78bfa" title="Viola"></div>
+            <div class="color-swatch ${currentColor === 'coral' ? 'active' : ''}" onclick="App.applyColorTheme('coral')" data-theme="coral" style="background:#fb7185" title="Corallo"></div>
+            <div class="color-swatch ${currentColor === 'gold' ? 'active' : ''}" onclick="App.applyColorTheme('gold')" data-theme="gold" style="background:#fbbf24" title="Oro"></div>
+            <div class="color-swatch ${currentColor === 'white' ? 'active' : ''}" onclick="App.applyColorTheme('white')" data-theme="white" style="background:#ffffff; border: 1px solid var(--glass-border)" title="Bianco"></div>
+          </div>
+        </div>
+      </div>
 
-        <div class="section-title">Notifications</div>
-        <div class="card" style="cursor:default; margin-bottom: var(--space-lg);">
-          <div class="card-row" style="margin-bottom: var(--space-md); align-items: center;">
-            <div class="card-icon gradient" style="width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--accent-gradient); color:white;">
-              ${UI.icon('clock')}
-            </div>
-            <div class="card-body" style="margin-left:var(--space-md);">
-              <div class="card-title">Timer Sound</div>
-              <div class="card-subtitle" style="font-size:0.8rem; color:var(--text-secondary);">
-                ${Storage.getSetting('timerSound') ? 'Custom audio active' : 'Default beep active'}
+      <div class="settings-section-title">Notifications</div>
+      <div class="settings-card-unified">
+        <div class="settings-row-unified" style="flex-direction:column; align-items:flex-start; gap:12px;">
+          <div class="flex-between" style="width:100%;">
+            <div class="flex gap-sm" style="align-items:center;">
+              <div class="card-icon gradient" style="width:32px; height:32px; font-size:1rem; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--accent-gradient); color:var(--accent-text, white);">
+                ${UI.icon('clock')}
               </div>
+              <span style="font-weight:500;">Timer Sound</span>
             </div>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">${Storage.getSetting('timerSound') ? 'Custom audio' : 'Default beep'}</span>
           </div>
           
-          <div class="flex gap-sm" style="flex-wrap: wrap;">
-            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="Player.playBeep()">
+          <div class="flex gap-sm" style="width:100%;">
+            <button class="btn btn-secondary" style="flex:1; border-radius:8px;" onclick="Player.playBeep()">
               ${UI.icon('play')} Test
             </button>
-            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="document.getElementById('timer-sound-input').click()">
+            <button class="btn btn-secondary" style="flex:1; border-radius:8px;" onclick="document.getElementById('timer-sound-input').click()">
               ${UI.icon('upload')} Upload
             </button>
-            <button class="btn btn-secondary" style="flex:1; border-radius:10px;" onclick="Storage.saveSetting('timerSound', null); App.navigate('#settings'); UI.showToast('Sound reset to default', 'success');">
-              ${UI.icon('refresh')} Reset
+            <button class="btn btn-secondary" style="border-radius:8px; padding:0 12px; width:48px;" onclick="Storage.saveSetting('timerSound', null); App.openSettings(); UI.showToast('Sound reset to default', 'success');">
+              ${UI.icon('refresh')}
             </button>
           </div>
-          <p class="text-caption" style="margin-top:var(--space-md); color:var(--text-muted); text-align:center;">
-            Supported formats: MP3, WAV, OGG (Max 2MB)
+          <p class="text-caption" style="color:var(--text-muted); margin:0; width:100%; text-align:center;">
+            Supported: MP3, OGG, WAV (Max 2MB)
           </p>
           <input type="file" id="timer-sound-input" class="file-input-hidden" accept="audio/*" onchange="App.handleTimerSoundUpload(event)">
         </div>
+      </div>
 
-        <div class="section-title">Storage</div>
-        <div class="card" style="cursor:default; margin-bottom: var(--space-lg);">
-          <div style="margin-bottom: var(--space-md);">
-            <div class="flex-between mb-md">
-              <span class="text-secondary text-small">Space used</span>
-              <span class="text-small">${usage.usedMB} MB / ${usage.limitMB} MB</span>
-            </div>
-            <div style="height:8px; background: var(--bg-elevated); border-radius: var(--radius-full); overflow:hidden;">
-              <div style="height:100%; width:${Math.min(usage.percentUsed, 100)}%; background: var(--accent-gradient); border-radius: var(--radius-full); transition: var(--transition-slow);"></div>
-            </div>
-          </div>
-        </div>
+      <div class="settings-section-title">Dati</div>
+      <div class="settings-card-unified">
+        <button class="settings-row-unified" style="background:transparent; border:none; width:100%; cursor:pointer; font-family:inherit; justify-content:flex-start; gap:0.75rem; color:var(--text-pure);" onclick="App.exportData()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span style="font-weight:500;">Esporta backup</span>
+        </button>
+        <label for="import-input" class="settings-row-unified" style="background:transparent; border:none; border-top:1px solid var(--glass-border); width:100%; cursor:pointer; font-family:inherit; justify-content:flex-start; gap:0.75rem; margin:0; color:var(--text-pure);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span style="font-weight:500;">Importa backup</span>
+        </label>
+        <input type="file" id="import-input" class="file-input-hidden" accept=".json" onchange="App.importData(event)">
+      </div>
 
-        <div class="section-title">Data</div>
-        <div class="card" style="cursor:default; margin-bottom: var(--space-md);">
-          <div class="card-row" style="margin-bottom: var(--space-ld); align-items: center;">
-            <div class="card-icon gradient" style="width:48px; height:48px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--accent-gradient); color:white;">
-              ${UI.icon('download')}
-            </div>
-            <div class="card-body" style="margin-left:var(--space-md);">
-              <div class="card-title">Export / Import</div>
-              <div class="card-subtitle" style="font-size:0.8rem; color:var(--text-secondary);">
-                Backup your data to a JSON file
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-md" style="margin-top: var(--space-md);">
-            <button class="btn btn-secondary" style="flex:1;" onclick="App.exportData()">
-              ${UI.icon('download')} Export
-            </button>
-            <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('import-input').click()">
-              ${UI.icon('upload')} Import
-            </button>
-          </div>
-          <input type="file" id="import-input" class="file-input-hidden" accept=".json" onchange="App.importData(event)">
-        </div>
-
-        <div class="card" style="cursor:default;">
-          <div class="card-title" style="margin-bottom: var(--space-md); color: var(--danger);">Danger Zone</div>
-          <button class="btn btn-danger btn-full" onclick="App.confirmClearData()">
-            ${UI.icon('trash')} Clear all data
-          </button>
-        </div>
+      <div class="settings-card-unified" style="border-color: rgba(239, 68, 68, 0.2);">
+        <button class="settings-row-unified" style="background:transparent; border:none; width:100%; cursor:pointer; font-family:inherit; justify-content:flex-start; gap:0.75rem; color: var(--danger);" onclick="App.confirmClearData()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span style="font-weight:500;">Cancella tutti i dati</span>
+        </button>
       </div>
     `;
+    
+    document.getElementById('settings-modal-body').innerHTML = contentHtml;
+    document.getElementById('settings-modal').classList.add('visible');
+    
+    if (window.initGoogleSync) {
+      window.initGoogleSync();
+    }
   }
 
   // --- Export/Import ---
@@ -4391,7 +4567,7 @@ const App = (() => {
     reader.onload = (e) => {
       Storage.saveSetting('timerSound', e.target.result);
       UI.showToast('Timer sound uploaded successfully!', 'success');
-      App.navigate('#settings'); // Re-render settings to show new status
+      App.openSettings(); // Re-render settings to show new status
     };
     reader.readAsDataURL(file);
   }
@@ -4424,6 +4600,44 @@ const App = (() => {
     );
   }
 
+  // --- Theme ---
+  let currentMode = 'auto';
+  let currentColor = 'cyan';
+
+  function applyLightMode(mode) {
+    currentMode = mode;
+    Storage.saveSetting('ptLightMode', mode);
+    
+    // Update active class if selector is present
+    const options = document.querySelectorAll('.theme-option');
+    options.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === mode));
+
+    if (mode === 'auto') {
+      var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+  }
+
+  function applyColorTheme(color) {
+    currentColor = color;
+    Storage.saveSetting('ptColorTheme', color);
+    
+    var classes = document.body.className.split(' ').filter(c => !c.startsWith('theme-'));
+    classes.push('theme-' + color);
+    document.body.className = classes.join(' ').trim();
+    
+    const swatches = document.querySelectorAll('.color-swatch');
+    swatches.forEach(sw => sw.classList.toggle('active', sw.dataset.theme === color));
+  }
+
+  // Watch for system theme changes if set to auto
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
+    if (currentMode === 'auto') {
+      document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
+    }
+  });
 
 
   // --- Bottom Navigation ---
@@ -4432,8 +4646,7 @@ const App = (() => {
       { id: 'home', icon: 'home', label: 'Home', hash: '#home' },
       { id: 'exercises', icon: 'activity', label: 'Exercises', hash: '#exercises' },
       { id: 'workouts', icon: 'clipboard', label: 'Workouts', hash: '#workouts' },
-      { id: 'sessions', icon: 'clock', label: 'Sessions', hash: '#sessions' },
-      { id: 'settings', icon: 'settings', label: 'Settings', hash: '#settings' },
+      { id: 'sessions', icon: 'clock', label: 'Sessions', hash: '#sessions' }
     ];
 
     let html = '<nav class="bottom-nav">';
@@ -4452,9 +4665,17 @@ const App = (() => {
 
   // --- Init ---
   function init() {
+    // Theme init
+    const savedMode = Storage.getSetting('ptLightMode') || 'auto';
+    applyLightMode(savedMode);
+    
+    const savedColor = Storage.getSetting('ptColorTheme') || 'cyan';
+    applyColorTheme(savedColor);
+
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().then(granted => {
         if (granted) console.log("Storage is persistent.");
+        else console.log("Storage is NOT persistent.");
       });
     }
 
@@ -4477,7 +4698,9 @@ const App = (() => {
     handleTimerSoundUpload,
     importData,
     confirmClearData,
-
+    openSettings,
+    applyLightMode,
+    applyColorTheme
   };
 })();
 
